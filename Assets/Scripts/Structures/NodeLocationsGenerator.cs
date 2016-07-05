@@ -14,7 +14,7 @@ public static class NodeLocationsGenerator
     {
         Vector3[][] locations = new Vector3[floorsCount][];
         float coneTopY = coneLocation.y + coneHeight;
-        float floorHeight = coneHeight / floorsCount;
+        float floorHeight = coneHeight / (floorsCount - 1);
 
         for (int floor = 0; floor < floorsCount; floor++)
         {
