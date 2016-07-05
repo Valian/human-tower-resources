@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 
 public class PlayerLinearMovement : MonoBehaviour {
@@ -12,6 +11,16 @@ public class PlayerLinearMovement : MonoBehaviour {
 
     private Node currentNode;
     private Node targetNode;
+
+    public Node DebugStartNode;
+
+    void Start()
+    {
+        if (this.DebugStartNode)
+        {
+            SetPosition(DebugStartNode);
+        }
+    }
     
 
     public void SetPosition(Node node)
@@ -22,9 +31,17 @@ public class PlayerLinearMovement : MonoBehaviour {
     }
 
     public void MoveTo(Node target)
-    {
-        currentNode = null;
-        targetNode = target;
+    {      
+        if (target)
+        {
+            var manager = GetComponentInParent<NodeManager>();
+            var canMove = CanMove && manager.IsConnected(currentNode.NodeId, target.NodeId);
+            if (canMove)
+            {
+                currentNode = null;
+                targetNode = target;
+            }
+        }
     }
 	
 	void Update ()
