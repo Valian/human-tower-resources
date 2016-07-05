@@ -10,15 +10,13 @@ public class Enemy : MonoBehaviour {
     public float Speed;
     
     private int hp;
-    private GameObject target;   
-        
-    // Use this for initialization
+    private GameObject target;
+    private NodeManager nodeManager;
+
     void Start () {
-	
+        nodeManager = GameObject.FindObjectOfType<NodeManager>();
 	}
 	
-	// Update is called once per frame
 	void Update () {
-	
 	}
 }
