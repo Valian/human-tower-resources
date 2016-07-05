@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class Node : MonoBehaviour {
 
@@ -17,5 +18,14 @@ public class Node : MonoBehaviour {
     {
         this.transform.position = position;
         this.NodeId = nodeId;
+    }
+
+    public void OnGazeTrigger()
+    {
+        var building = Camera.main.GetComponentInParent<PlayerBuilding>();
+        building.FortifyNode(this);
+
+        var movement = Camera.main.GetComponentInParent<PlayerLinearMovement>();
+        movement.MoveTo(this);
     }
 }

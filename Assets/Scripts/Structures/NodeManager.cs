@@ -5,6 +5,7 @@ public class NodeManager : MonoBehaviour {
 
     public Node NodeObjectPrefab;
     public Edge EdgeNodePrefab;
+    public PlayerLinearMovement PlayerPrefab;
     public float ConeHeight;
     public float ConeRadius;
     public int FloorCount;
@@ -14,6 +15,7 @@ public class NodeManager : MonoBehaviour {
     void Start()
     {
         Generate();
+        SpawnPlayer();
     }
 
     public void Generate()
@@ -26,6 +28,14 @@ public class NodeManager : MonoBehaviour {
             ConeRadius, FloorCount, floorNodesCounts);
 
         InitializeNodesAndEdges(floorNodesCounts, nodesLocations);
+    }
+
+    private void SpawnPlayer()
+    {
+        var player = Instantiate<PlayerLinearMovement>(PlayerPrefab);
+        // TODO - jakos sprytniej
+        var node = GetComponentInChildren<Node>();
+        player.SetPosition(node);
     }
 
     public bool CanConnect(int from, int to)
@@ -113,6 +123,7 @@ public class NodeManager : MonoBehaviour {
     private Node InstantiateNode(int id, Vector3 location)
     {
         Node node = Instantiate(NodeObjectPrefab);
+        node.transform.parent = transform;
         node.InitNode(id, location);
         return node;
     }
@@ -120,6 +131,7 @@ public class NodeManager : MonoBehaviour {
     private void InstantiateEdge(Node from, Node to)
     {
         Edge edge = Instantiate(EdgeNodePrefab);
+        edge.transform.parent = transform;
         edge.InitEdge(from, to);
         connections[from.NodeId, to.NodeId] = connections[to.NodeId, from.NodeId] = edge;
     }
