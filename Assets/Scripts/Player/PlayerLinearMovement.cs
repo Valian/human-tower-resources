@@ -34,7 +34,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     {      
         if (target)
         {
-            var manager = GetComponentInParent<NodeManager>();
+            var manager = GameObject.FindObjectOfType<NodeManager>();
             var canMove = CanMove && manager.IsConnected(currentNode.NodeId, target.NodeId);
             if (canMove)
             {

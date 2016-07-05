@@ -22,7 +22,6 @@ public class Node : MonoBehaviour {
 
     public void OnGazeTrigger()
     {
-        Debug.Log("Hehe");
         var building = Camera.main.GetComponentInParent<PlayerBuilding>();
         building.FortifyNode(this);
 
