@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class PlayerBuilding : MonoBehaviour {
+public class PlayerBuilding : MonoBehaviour
+{
 
     public int BuildSpeedPerSecond;
     public bool CanBuild { get { return !movement.IsMoving; } }
@@ -16,11 +18,11 @@ public class PlayerBuilding : MonoBehaviour {
     
     public void FortifyNode(Node targetNode)
     {
-        if(CanBuild)
+        if(CanBuild && movement.CurrentNode && targetNode)
         {
-            var manager = this.GetComponentInParent<NodeManager>();
+            var manager = GameObject.FindObjectOfType<NodeManager>();
             var hpRestored = BuildSpeedPerSecond * Time.deltaTime;
             manager.FortifyEdge(movement.CurrentNode.NodeId, targetNode.NodeId, hpRestored);
         }
-    }
+    }    
 }

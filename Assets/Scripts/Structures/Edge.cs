@@ -84,6 +84,9 @@ public class Edge : MonoBehaviour {
     private void finishConstruction()
     {
         this.state = EdgeState.ACTIVE;
-        OnActivated();
+
+        if(this.OnActivated != null) { 
+            OnActivated();
+        }
     }    
 }
