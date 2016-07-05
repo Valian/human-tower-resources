@@ -12,6 +12,7 @@ public class PlayerLinearMovement : MonoBehaviour {
 
     private Node currentNode;
     private Node targetNode;
+    
 
     public void SetPosition(Node node)
     {
