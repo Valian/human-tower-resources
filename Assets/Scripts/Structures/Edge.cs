@@ -12,17 +12,16 @@ public class Edge : MonoBehaviour {
 
     [Range(0, 100)]
     public int MaxHP;
-    public int NodeId { get; private set; }
     public bool IsActive { get { return state == EdgeState.ACTIVE; } }
 
     private EdgeState state = EdgeState.NOT_ACTIVE;
     private float currentHP = 0f;
 
-    public void InitEdge(Node from, Node to, int nodeId)
+    public void InitEdge(Node from, Node to)
     {
         from.NodeDamaged += onConnectedNodeDamaged;
         to.NodeDamaged += onConnectedNodeDamaged;
-        this.NodeId = nodeId;
+        transform.position = (from.transform.position + to.transform.position) / 2;
     }
 
     public void FortifyEdge(float amountAdded)
