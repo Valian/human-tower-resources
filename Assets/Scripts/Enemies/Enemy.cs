@@ -163,12 +163,12 @@ public abstract class Enemy : MonoBehaviour
     }
     protected void ChaseBlinky()
     {
-        if(GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        if(GameManager.Instance.Player.Movement.CurrentNode && GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
         {
             targetPosition = GameManager.Instance.Player.transform.position;
             targetNode = GameManager.Instance.Player.Movement.CurrentNode;
             IsMoving = true;
-            return;
+            return; 
         }
         Collider[] hitColliders = FindColiders(SearchRadius);
         foreach (Collider col in hitColliders)
