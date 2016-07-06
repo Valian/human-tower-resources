@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public enum GraphType
 {
@@ -23,6 +24,7 @@ public class NodeManager : MonoBehaviour {
     public int CubePartsCount;
 
     private Edge[,] connections;
+    private Node[] nodes;
     
     public void Generate()
     {
@@ -46,14 +48,30 @@ public class NodeManager : MonoBehaviour {
                 break;
         }
 
-        Node[] nodes = InitializeNodes(nodesLocations);
-        InitializeEdges(nodes, edges);
+        InitializeNodes(nodesLocations);
+        InitializeEdges(this.nodes, edges);
     }
 
     public bool IsConnected(int from, int to)
     {
         var edge = getEdge(from, to);
         return edge != null;
+    }
+
+    public ICollection<Node> GetNeightbours(Node node)
+    {
+        var result = new HashSet<Node>();
+        for(int dim = 0; dim <= 1; dim++)
+        {
+            for (int i = 0; i < connections.GetLength(dim); i++)
+            {
+                if (node.NodeId != i && IsConnected(node.NodeId, i))
+                {
+                    result.Add(nodes[i]);
+                }
+            }
+        }
+        return result;
     }
 
     private int[] GenerateFloorNodesCounts(out int nodesCount)
@@ -67,14 +85,14 @@ public class NodeManager : MonoBehaviour {
         return floorNodesCounts;
     }
     
-    private Node[] InitializeNodes(Vector3[] nodesLocations)
+    private void InitializeNodes(Vector3[] nodesLocations)
     {
         Node[] nodes = new Node[nodesLocations.Length];
         for (int nodeId = 0; nodeId < nodesLocations.Length; nodeId++)
         {
             nodes[nodeId] = InstantiateNode(nodeId, nodesLocations[nodeId]);
         }
-        return nodes;
+        this.nodes = nodes;
     }
 
     private void InitializeEdges(Node[] nodes, int[][] edges)

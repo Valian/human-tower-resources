@@ -5,14 +5,17 @@ public class PlayerLinearMovement : MonoBehaviour {
 
     [Range(0, 50f)]
     public float Speed;
-    public bool IsMoving { get { return targetNode != null; } }
-    public Node CurrentNode { get { return currentNode; } }
-    public Node TargetNode { get { return targetNode; } }
+    public bool IsMoving { get { return TargetNode != null; } }
+    public Node CurrentNode { get; private set; }
+    public Node TargetNode { get; private set; }
+    public Node NextTargetNode { get; private set; }
+    public Node PreviousNode { get; private set; }
 
-    private Node currentNode;
-    private Node targetNode;
-    private Node previousNode;
-    
+    public delegate void PlayerMovement(PlayerLinearMovement player);
+    public event PlayerMovement PlayerTargetChanged;
+    public event PlayerMovement PlayerTargetReached;
+    public event PlayerMovement PlayerNextTargetChanged;
+
     void Start()
     {
         Node.NodeTriggered += MoveTo;
@@ -21,9 +24,11 @@ public class PlayerLinearMovement : MonoBehaviour {
 
     public void SetPosition(Node node)
     {
-        currentNode = node;
-        targetNode = null;
-        previousNode = null;
+        CurrentNode = node;
+        TargetNode = null;
+        PreviousNode = null;
+        CallPlayerTargetChanged();
+        CallPlayerTargetReached();
         transform.position = node.transform.position;
     }
 
@@ -32,13 +37,15 @@ public class PlayerLinearMovement : MonoBehaviour {
         if (target)
         {
             var manager = GameObject.FindObjectOfType<NodeManager>();
-            var wantsToGoBack = target == previousNode;
-            var canMove = !IsMoving && manager.IsConnected(currentNode.NodeId, target.NodeId);
+            var wantsToGoBack = target == PreviousNode;
+            var canMove = !IsMoving && manager.IsConnected(CurrentNode.NodeId, target.NodeId);
             if (wantsToGoBack || canMove)
             {
-                previousNode = currentNode ? currentNode: targetNode;
-                targetNode = target;
-                currentNode = null;
+                ChangePlayerTarget(target);
+            } 
+            else if(TargetNode && manager.IsConnected(target.NodeId, TargetNode.NodeId))
+            {
+                ChangePlayerNextTarget(target);
             }
         }
     }
@@ -47,10 +54,15 @@ public class PlayerLinearMovement : MonoBehaviour {
     {
         if (IsMoving)
         {
-            var diff = targetNode.transform.position - transform.position;
+            var diff = TargetNode.transform.position - transform.position;
             if (diff.magnitude <= this.Speed * Time.deltaTime)
             {
-                this.SetPosition(targetNode);
+                this.SetPosition(TargetNode);
+                if(NextTargetNode)
+                {
+                    ChangePlayerTarget(NextTargetNode);
+                    NextTargetNode = null;
+                }
             }
             else
             {
@@ -58,4 +70,43 @@ public class PlayerLinearMovement : MonoBehaviour {
             }
         }
 	}
+
+    private void ChangePlayerTarget(Node target)
+    {
+        PreviousNode = CurrentNode ? CurrentNode : TargetNode;
+        TargetNode = target;
+        CurrentNode = null;
+        NextTargetNode = null;
+        CallPlayerTargetChanged();
+    }
+
+    private void ChangePlayerNextTarget(Node nextTarget)
+    {
+        NextTargetNode = nextTarget;
+        CallPlayerNextTargetChanged();
+    }
+
+    private void CallPlayerNextTargetChanged()
+    {
+        if (PlayerNextTargetChanged != null)
+        {
+            PlayerNextTargetChanged(this);
+        }
+    }
+
+    private void CallPlayerTargetChanged()
+    {
+        if (PlayerTargetChanged != null)
+        {
+            PlayerTargetChanged(this);
+        }
+    }
+
+    private void CallPlayerTargetReached()
+    {
+        if (PlayerTargetReached != null)
+        {
+            PlayerTargetReached(this);
+        }
+    }
 }

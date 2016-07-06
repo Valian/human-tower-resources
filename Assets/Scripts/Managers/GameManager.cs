@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour {
     void Awake()
     {
         ScoreBall.BallSpawned += OnBallSpawned;
-        ScoreBall.BallCollected += OnBallCollected;
+        ScoreBall.BallCollected += OnBallCollected;        
         Instance = this;
     }
 
@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour {
     {
         // TODO - jakos sprytniej
         var node = nodeManager.GetComponentInChildren<Node>();
+        Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
+        Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
+        Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
         Player.Movement.SetPosition(node);
     }    
 
@@ -63,4 +66,44 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void OnPlayerTargetReached(PlayerLinearMovement player)
+    {
+        ChangeNeightboursColors(player.CurrentNode, Color.green);
+    }
+
+    private void OnPlayerNextTargetChanged(PlayerLinearMovement player)
+    {
+        if (player.NextTargetNode)
+        {
+            Debug.Log("Changing yellow");
+            ChangeNodeColor(player.NextTargetNode, Color.yellow);
+        }
+    }
+
+    private void OnPlayerTargetChanged(PlayerLinearMovement player)
+    {
+        if(player.PreviousNode)
+        {
+            ChangeNeightboursColors(player.PreviousNode, Color.white);
+        }
+        if (player.TargetNode)
+        {
+            ChangeNeightboursColors(player.TargetNode, Color.green);
+        }
+    }
+
+    private void ChangeNeightboursColors(Node node, Color color)
+    {
+        var neightbours = nodeManager.GetNeightbours(node);
+        foreach (var n in neightbours)
+        {
+            ChangeNodeColor(n, color);
+        }
+    }    
+
+    private void ChangeNodeColor(Node node, Color color)
+    {
+        Debug.Log("Changing color");
+        node.GetComponent<Renderer>().material.color = color;
+    }
 }
