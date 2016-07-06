@@ -123,6 +123,7 @@ public class NodeManager : MonoBehaviour {
 
     private Edge getEdge(int from, int to)
     {
+        if (connections == null) return null;
         var conn = connections[from, to];
         if (conn == null)
         {

@@ -12,8 +12,8 @@ public class Enemy : MonoBehaviour
     [Range(0, 40)]
     public int ChaseTimer;
 
-    //[Range(0, 10)]
-    //public int ScatterTimer;
+    [Range(0, 1000)]
+    public int SearchRadius;
 
     //[Range(0, 20)]
     //public int FrightenedTimer;
@@ -43,17 +43,16 @@ public class Enemy : MonoBehaviour
     private float timer;
     private GameObject player;
     private Vector3 targetPosition;
-    private NodeManager nodeManager;
 
     // Use this for initialization
     void Start()
     {
-        nodeManager = GameObject.FindObjectOfType<NodeManager>();
+        
         IsInitialized = false;
 
         //target = GameObject.FindObjectOfType<PlayerLinearMovement>;
         //player = GameManager.Instance.Player.gameObject;
-        InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
+        //InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
     }
     public void SetPosition(Node node)
     {
@@ -70,6 +69,8 @@ public class Enemy : MonoBehaviour
         currentNode = targets[Random.Range(0, targets.Count)];
         gameObject.transform.position = currentNode.transform.position;
         IsMoving = false;
+        SearchRadius = 117; //tested and seems fine
+        movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
 
         IsInitialized = true;
@@ -80,10 +81,12 @@ public class Enemy : MonoBehaviour
         if (!IsInitialized) Init();
         if (IsMoving)
         {
-            var diff = player.transform.position - transform.position;
+            //var diff = player.transform.position - transform.position;
+            var diff = targetPosition - transform.position;
             if (diff.magnitude <= this.Speed * Time.deltaTime)
             {
                 this.SetPosition(targetNode);
+                IsMoving = false;
             }
             else
             {
@@ -93,7 +96,6 @@ public class Enemy : MonoBehaviour
         else
         {
             SetNewTarget();
-            IsMoving = true;
         }
         
     }
@@ -143,11 +145,25 @@ public class Enemy : MonoBehaviour
     void ChaseBlinky()
     {
         //wyznacz sciezke od siebie do gracza
-        targetNode = GameManager.Instance.Player.Movement.CurrentNode;
+        //targetNode = GameManager.Instance.Player.Movement.CurrentNode;
+        Collider[] hitColliders = Physics.OverlapSphere(Vector3.MoveTowards(transform.position, player.transform.position, SearchRadius), SearchRadius);
+        foreach (Collider col in hitColliders)
+        {
+            Node colObject = col.gameObject.GetComponent<Node>();
+            if (colObject != null)
+            {
+                if(GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
+                {
+                    targetPosition = colObject.transform.position;
+                    targetNode = colObject;
 
-        Node PlayerNode = GameManager.Instance.Player.Movement.CurrentNode ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
-        Node myNode = currentNode;
-        //wybierz targetNode jako pierwszy wezel
+                    IsMoving = true;
+                }
+            }
+        }
+        //Node PlayerNode = GameManager.Instance.Player.Movement.CurrentNode ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
+        //Node myNode = currentNode;
+        ////wybierz targetNode jako pierwszy wezel
     }
     void ChaseClide()
     {
