@@ -4,6 +4,54 @@ using UnityEngine;
 
 public static class GraphGenerator
 {
+    public static Vector3[] GenerateGraphOnCuboid(Vector3 location, Vector3 size, int partsCount, out int[][] edges)
+    {
+        List<Vector3> nodes = new List<Vector3>();
+        List<int[]> edgesList = new List<int[]>();
+        Vector3[,,] nodesMesh = new Vector3[partsCount, partsCount, partsCount];
+
+        Vector3 sizePart = size / (partsCount - 1);
+
+        for (int i = 0; i < partsCount; i++)
+        {
+            for (int j = 0; j < partsCount; j++)
+            {
+                for (int k = 0; k < partsCount; k++)
+                {
+                    Vector3 node = new Vector3(location.x + i * sizePart.x, location.y + j * sizePart.y,
+                        location.x + k * sizePart.z);
+                    nodesMesh[i, j, k] = node;
+                    nodes.Add(node);
+                }
+            }
+        }
+
+        for (int i = 0; i < partsCount; i++)
+        {
+            for (int j = 0; j < partsCount; j++)
+            {
+                for (int k = 0; k < partsCount; k++)
+                {
+                    if (i + 1 < partsCount)
+                    {
+                        edgesList.Add(new[] { nodes.IndexOf(nodesMesh[i, j, k]), nodes.IndexOf(nodesMesh[i + 1, j, k]) });
+                    }
+                    if (j + 1 < partsCount)
+                    {
+                        edgesList.Add(new[] { nodes.IndexOf(nodesMesh[i, j, k]), nodes.IndexOf(nodesMesh[i, j + 1, k]) });
+                    }
+                    if (k + 1 < partsCount)
+                    {
+                        edgesList.Add(new[] { nodes.IndexOf(nodesMesh[i, j, k]), nodes.IndexOf(nodesMesh[i, j, k + 1]) });
+                    }
+                }
+            }
+        }
+
+        edges = edgesList.ToArray();
+        return nodes.ToArray();
+    }
+
     /// <summary>
     ///     Floors are defined as horizontal parallel panes evenly distibuted through the <paramref name="coneHeight" />.
     ///     The nodes are distributed evenly on circles obtained as the instersections of the panes and the cone of given
@@ -15,10 +63,11 @@ public static class GraphGenerator
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
-        float coneTopY = coneLocation.y + coneHeight;
-        float floorHeight = coneHeight / (floorsCount - 1);
         Vector3[] lastNodesFloor = null;
         Vector3[] currentNodesFloor = null;
+
+        float coneTopY = coneLocation.y + coneHeight;
+        float floorHeight = coneHeight / (floorsCount - 1);
 
         for (int floorNo = 0; floorNo < floorsCount; floorNo++)
         {
@@ -43,8 +92,8 @@ public static class GraphGenerator
                 edgesList.AddRange(GetEdgesBetweenTwoFloors(lastNodesFloor, currentNodesFloor, nodes));
             }
         }
-        edges = edgesList.ToArray();
 
+        edges = edgesList.ToArray();
         return nodes.ToArray();
     }
 

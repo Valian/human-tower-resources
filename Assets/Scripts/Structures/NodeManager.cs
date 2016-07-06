@@ -1,27 +1,50 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Linq;
+
+public enum GraphType
+{
+    Cone,
+    Cubic
+}
 
 public class NodeManager : MonoBehaviour {
 
     public Node NodeObjectPrefab;
     public Edge EdgeNodePrefab;
     public PlayerLinearMovement PlayerPrefab;
+
+    public GraphType GraphType;
+
     public float ConeHeight;
     public float ConeRadius;
-    public int FloorCount;
+    public int ConeFloorCount;
+
+    public Vector3 CubeSize;
+    public int CubePartsCount;
 
     private Edge[,] connections;
     
     public void Generate()
     {
-        int allNodesCount;
-        int[] floorNodesCounts = GenerateFloorNodesCounts(out allNodesCount);
-        connections = new Edge[allNodesCount, allNodesCount];
-        int[][] edges;
+        int nodesCount;
+        int[][] edges = null;
+        Vector3[] nodesLocations = null;
 
-        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight,
-            ConeRadius, FloorCount, floorNodesCounts, out edges);
+        switch (GraphType)
+        {
+            case GraphType.Cone:
+                int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
+                connections = new Edge[nodesCount, nodesCount];
+                nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
+                    ConeFloorCount, floorNodesCounts, out edges);
+                break;
+            case GraphType.Cubic:
+                nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
+                connections = new Edge[nodesCount, nodesCount];
+                nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
+                    out edges);
+                break;
+        }
 
         Node[] nodes = InitializeNodes(nodesLocations);
         InitializeEdges(nodes, edges);
@@ -35,10 +58,10 @@ public class NodeManager : MonoBehaviour {
 
     private int[] GenerateFloorNodesCounts(out int nodesCount)
     {
-        int[] floorNodesCounts = new int[FloorCount];
-        for (int i = 0; i < FloorCount; i++)
+        int[] floorNodesCounts = new int[ConeFloorCount];
+        for (int i = 0; i < ConeFloorCount; i++)
         {
-            floorNodesCounts[i] = FloorCount - i;
+            floorNodesCounts[i] = ConeFloorCount - i;
         }
         nodesCount = floorNodesCounts.Sum(a => a);
         return floorNodesCounts;
