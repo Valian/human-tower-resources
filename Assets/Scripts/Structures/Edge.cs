@@ -5,8 +5,7 @@ using System.Linq;
 
 
 public class Edge : MonoBehaviour {
-        
-    private float currentHP = 0f;
+
     private List<EdgeEffects> particleEmitters;
 
     public void InitEdge(Node from, Node to)
