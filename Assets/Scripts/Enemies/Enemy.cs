@@ -38,6 +38,7 @@ public abstract class Enemy : MonoBehaviour
     protected bool IsInitialized;
     protected Node currentNode;
     protected Node targetNode;
+    protected Edge movingOnEdge;
     //private Node previousNode;
 
     //private float timer;
@@ -47,18 +48,15 @@ public abstract class Enemy : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        
         IsInitialized = false;
 
-        //target = GameObject.FindObjectOfType<PlayerLinearMovement>;
-        //player = GameManager.Instance.Player.gameObject;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
     }
     public void SetPosition(Node node)
     {
         currentNode = node;
         targetNode = null;
-        //previousNode = null;
+
         transform.position = node.transform.position;
         IsMoving = false;
     }
@@ -83,7 +81,6 @@ public abstract class Enemy : MonoBehaviour
         if (!IsInitialized) Init();
         if (IsMoving)
         {
-            //var diff = player.transform.position - transform.position;
             var diff = targetPosition - transform.position;
             if (diff.magnitude <= this.Speed * Time.deltaTime)
             {
@@ -119,21 +116,6 @@ public abstract class Enemy : MonoBehaviour
 
     }
     protected abstract void ChaseMove();
-        //switch (ghostType)
-        //{
-        //    case GhostType.Blinky:
-        //        ChaseBlinky();
-        //        break;
-        //    case GhostType.Clide:
-        //        ChaseClide();
-        //        break;
-        //    case GhostType.Inky:
-        //        ChaseInky();
-        //        break;
-        //    case GhostType.Pinky:
-        //        ChasePinky();
-        //        break;
-        //}
 
     protected void ScatterMove()
     {
@@ -229,43 +211,6 @@ public abstract class Enemy : MonoBehaviour
             }
         }
     }
-    //void ChaseClide()
-    //{
-    //    if(Vector3.Distance(transform.position, player.transform.position) > ClideRange)
-    //    {
-    //        ChaseBlinky();
-    //    }
-    //    else
-    //    {
-    //        ScatterMove();
-    //    }
-    //}
-    //void ChaseInky()
-    //{
-    //    PlayerLinearMovement plm = GameManager.Instance.Player.Movement;
-    //    if (plm.CurrentNode != null && plm.TargetNode != null)
-    //    {
-    //        Vector3 vec = 2 * (plm.CurrentNode.transform.position - transform.position);
-    //        ChaseWithVector(vec);
-    //    }
-    //    else
-    //    {
-    //        ChaseBlinky();
-    //    }
-    //}
-    //void ChasePinky()
-    //{
-    //    PlayerLinearMovement plm = GameManager.Instance.Player.Movement;
-    //    if (plm.CurrentNode != null && plm.TargetNode != null)
-    //    {
-    //        Vector3 vec = 2 * (plm.TargetNode.transform.position - plm.CurrentNode.transform.position);
-    //        ChaseWithVector(vec);
-    //    }
-    //    else
-    //    {
-    //        ChaseBlinky();
-    //    }
-    //}
     protected Collider[] FindColiders(int radius)
     {
         Collider[] result = Physics.OverlapSphere(Vector3.MoveTowards(transform.position, player.transform.position, radius), radius);
