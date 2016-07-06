@@ -15,6 +15,8 @@ public class NodeManager : MonoBehaviour {
     public PlayerLinearMovement PlayerPrefab;
 
     public GraphType GraphType;
+    [Range(0f, 1f)]
+    public float RandomizationPercentage;
 
     public float ConeHeight;
     public float ConeRadius;
@@ -35,21 +37,39 @@ public class NodeManager : MonoBehaviour {
         switch (GraphType)
         {
             case GraphType.Cone:
-                int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
-                connections = new Edge[nodesCount, nodesCount];
-                nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
-                    ConeFloorCount, floorNodesCounts, out edges);
+            {
+                nodesLocations = GenerateNodeConicLocations(out edges);
                 break;
+            }
             case GraphType.Cubic:
-                nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
-                connections = new Edge[nodesCount, nodesCount];
-                nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
-                    out edges);
+            {
+                nodesLocations = GenerateNodeCubicLocations(out edges);
                 break;
+            }
+
         }
 
         InitializeNodes(nodesLocations);
         InitializeEdges(this.nodes, edges);
+    }
+
+    private Vector3[] GenerateNodeConicLocations(out int[][] edges)
+    {
+        int nodesCount;
+        int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
+            ConeFloorCount, floorNodesCounts, out edges, RandomizationPercentage);
+        return nodesLocations;
+    }
+
+    private Vector3[] GenerateNodeCubicLocations(out int[][] edges)
+    {
+        int nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
+            out edges, RandomizationPercentage);
+        return nodesLocations;
     }
 
     public bool IsConnected(int from, int to)

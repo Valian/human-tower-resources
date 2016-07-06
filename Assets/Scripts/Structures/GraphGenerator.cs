@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public static class GraphGenerator
 {
-    public static Vector3[] GenerateGraphOnCuboid(Vector3 location, Vector3 size, int partsCount, out int[][] edges)
+    private static readonly Random Random = new Random();
+
+    public static Vector3[] GenerateGraphOnCuboid(Vector3 location, Vector3 size, int partsCount, out int[][] edges,
+        float randomizationPercentage = 0f)
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
         Vector3[,,] nodesMesh = new Vector3[partsCount, partsCount, partsCount];
 
-        Vector3 sizePart = size / (partsCount - 1);
+        Vector3 partSize = size / (partsCount - 1);
 
         for (int i = 0; i < partsCount; i++)
         {
@@ -18,8 +22,11 @@ public static class GraphGenerator
             {
                 for (int k = 0; k < partsCount; k++)
                 {
-                    Vector3 node = new Vector3(location.x + i * sizePart.x, location.y + j * sizePart.y,
-                        location.x + k * sizePart.z);
+                    Vector3 randomVector3 = GetRandomVector3(randomizationPercentage, partSize);
+
+                    Vector3 node = new Vector3(location.x + i * partSize.x, location.y + j * partSize.y,
+                        location.x + k * partSize.z) + randomVector3;
+
                     nodesMesh[i, j, k] = node;
                     nodes.Add(node);
                 }
@@ -59,7 +66,7 @@ public static class GraphGenerator
     ///     <paramref name="coneLocation" /> is defined at cone base center.
     /// </summary>
     public static Vector3[] GenerateGraphOnCone(Vector3 coneLocation, float coneHeight, float coneRadius,
-        int floorsCount, int[] floorsNodesCounts, out int[][] edges)
+        int floorsCount, int[] floorsNodesCounts, out int[][] edges, float randomizationPercentage = 0f)
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
@@ -73,7 +80,7 @@ public static class GraphGenerator
         {
             float floorY = coneLocation.y + floorNo * floorHeight;
             float newConeHeight = coneTopY - floorY;
-            float floor = coneRadius * newConeHeight / coneHeight;
+            float floorRadius = coneRadius * newConeHeight / coneHeight;
 
             if (floorNo > 0)
             {
@@ -81,8 +88,10 @@ public static class GraphGenerator
                 currentNodesFloor.CopyTo(lastNodesFloor, 0);
             }
 
-            currentNodesFloor = GenerateNodeLocationsOnCircle(coneLocation.x, floorY, coneLocation.z, floor,
-                floorsNodesCounts[floorNo]);
+            Vector3 partSize = new Vector3(floorRadius / 2, floorHeight, floorRadius / 2);
+
+            currentNodesFloor = GenerateNodeLocationsOnCircle(coneLocation.x, floorY, coneLocation.z, floorRadius,
+                floorsNodesCounts[floorNo], randomizationPercentage, partSize);
             nodes.AddRange(currentNodesFloor);
 
             edgesList.AddRange(GetEdgesOnFloor(currentNodesFloor, nodes));
@@ -97,7 +106,23 @@ public static class GraphGenerator
         return nodes.ToArray();
     }
 
-    private static Vector3[] GenerateNodeLocationsOnCircle(float x, float y, float z, float radius, int nodesCount)
+    private static Vector3 GetRandomVector3(float randomizationPercentage, Vector3 partSize)
+    {
+        Vector3 random =
+            new Vector3(GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.x / 2,
+                GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.y / 2,
+                GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.z / 2);
+        return random;
+    }
+
+    private static int GetRandomSign()
+    {
+        int sign = Random.Next(-1, 1);
+        return sign;
+    }
+
+    private static Vector3[] GenerateNodeLocationsOnCircle(float x, float y, float z, float radius, int nodesCount,
+        float randomizationPercentage, Vector3 partSize)
     {
         Vector3[] locations = new Vector3[nodesCount];
         double angleFraction = 2 * Math.PI / nodesCount;
@@ -105,7 +130,8 @@ public static class GraphGenerator
         for (int node = 0; node < nodesCount; node++)
         {
             double currentAngle = node * angleFraction;
-            locations[node] = GetLocationFromRadiusAndAngle(x, y, z, radius, currentAngle);
+            Vector3 randomVector3 = GetRandomVector3(randomizationPercentage, partSize);
+            locations[node] = GetLocationFromRadiusAndAngle(x, y, z, radius, currentAngle) + randomVector3;
         }
 
         return locations;
