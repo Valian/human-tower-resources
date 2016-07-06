@@ -3,7 +3,7 @@
 
 public class PlayerLinearMovement : MonoBehaviour {
 
-    [Range(0, 30f)]
+    [Range(0, 50f)]
     public float Speed;
     public bool IsMoving { get { return targetNode != null; } }
     public bool CanMove { get { return !IsMoving; } }
@@ -11,15 +11,10 @@ public class PlayerLinearMovement : MonoBehaviour {
 
     private Node currentNode;
     private Node targetNode;
-
-    public Node DebugStartNode;
-
+    
     void Start()
     {
-        if (this.DebugStartNode)
-        {
-            SetPosition(DebugStartNode);
-        }
+        Signals.NodeTriggered += MoveTo;
     }
     
 
@@ -31,7 +26,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     }
 
     public void MoveTo(Node target)
-    {      
+    {
         if (target)
         {
             var manager = GameObject.FindObjectOfType<NodeManager>();

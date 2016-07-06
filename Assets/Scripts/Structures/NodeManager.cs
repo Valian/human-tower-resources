@@ -38,26 +38,12 @@ public class NodeManager : MonoBehaviour {
         player.SetPosition(node);
     }
 
-    public bool CanConnect(int from, int to)
-    {
-        return getEdge(from, to) != null;
-    }
-
     public bool IsConnected(int from, int to)
     {
         var edge = getEdge(from, to);
-        return edge != null && edge.IsActive;
+        return edge != null;
     }
-
-    public void FortifyEdge(int from, int to, float hpBuild)
-    {
-        var edge = getEdge(from, to);
-        if(edge)
-        {
-            edge.FortifyEdge(hpBuild);
-        }
-    }
-
+    
     private void InitializeNodesAndEdges(int[] floorNodesCounts, Vector3[][] nodesLocations)
     {
         Node[] lastNodesFloor = null;
