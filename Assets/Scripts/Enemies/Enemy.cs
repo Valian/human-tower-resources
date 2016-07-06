@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-public class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
     [Range(0f, 50f)]
     public float Speed;
@@ -15,8 +15,8 @@ public class Enemy : MonoBehaviour
     [Range(0, 1000)]
     public int SearchRadius;
 
-    //[Range(0, 20)]
-    //public int FrightenedTimer;
+    [Range(0, 500)]
+    public int ClideRange;
 
     public enum GhostType
     {
@@ -34,15 +34,15 @@ public class Enemy : MonoBehaviour
     public GhostType ghostType;
     public MovingPattern movingPattern;
 
-    private bool IsMoving;
-    private bool IsInitialized;
-    private Node currentNode;
-    private Node targetNode;
-    private Node previousNode;
+    protected bool IsMoving;
+    protected bool IsInitialized;
+    protected Node currentNode;
+    protected Node targetNode;
+    //private Node previousNode;
 
-    private float timer;
-    private GameObject player;
-    private Vector3 targetPosition;
+    //private float timer;
+    protected GameObject player;
+    protected Vector3 targetPosition;
 
     // Use this for initialization
     void Start()
@@ -52,13 +52,13 @@ public class Enemy : MonoBehaviour
 
         //target = GameObject.FindObjectOfType<PlayerLinearMovement>;
         //player = GameManager.Instance.Player.gameObject;
-        //InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
+        InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
     }
     public void SetPosition(Node node)
     {
         currentNode = node;
         targetNode = null;
-        previousNode = null;
+        //previousNode = null;
         transform.position = node.transform.position;
         IsMoving = false;
     }
@@ -70,7 +70,9 @@ public class Enemy : MonoBehaviour
         gameObject.transform.position = currentNode.transform.position;
         IsMoving = false;
         SearchRadius = 117; //tested and seems fine
-        movingPattern = MovingPattern.Chase;
+        ClideRange = 200;
+        ChaseTimer = 10;
+        //movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
 
         IsInitialized = true;
@@ -95,7 +97,8 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            SetNewTarget();
+            if(transform.position != player.transform.position) SetNewTarget();
+            //SetNewTarget();
         }
         
     }
@@ -115,38 +118,77 @@ public class Enemy : MonoBehaviour
         }
 
     }
-    void ChaseMove()
-    {
-        switch (ghostType)
-        {
-            case GhostType.Blinky:
-                ChaseBlinky();
-                break;
-            case GhostType.Clide:
-                ChaseClide();
-                break;
-            case GhostType.Inky:
-                ChaseInky();
-                break;
-            case GhostType.Pinky:
-                ChasePinky();
-                break;
-        }
-    }
-    void ScatterMove()
-    {
+    protected abstract void ChaseMove();
+        //switch (ghostType)
+        //{
+        //    case GhostType.Blinky:
+        //        ChaseBlinky();
+        //        break;
+        //    case GhostType.Clide:
+        //        ChaseClide();
+        //        break;
+        //    case GhostType.Inky:
+        //        ChaseInky();
+        //        break;
+        //    case GhostType.Pinky:
+        //        ChasePinky();
+        //        break;
+        //}
 
+    protected void ScatterMove()
+    {
+        int axis = Random.Range(0, 2);
+        int direction = Random.Range(0, 1);
+        float value = 0f;
+        foreach(Node n in GameObject.FindObjectsOfType<Node>().ToList())
+        {
+            if(direction == 0)
+            {
+                if (n.transform.position[axis] > value && GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+                {
+                    value = n.transform.position[axis];
+                    targetNode = n;
+                    targetPosition = n.transform.position;
+                }
+            }
+            else
+            {
+                if(n.transform.position[axis] < value && GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+                {
+                    value = n.transform.position[axis];
+                    targetNode = n;
+                    targetPosition = n.transform.position;
+                }
+            }
+            
+        }
+        IsMoving = true;
     }
     void FrightendMove()
     {
-        
+        List<Node> neighbourNodes = new List<Node>();
+        foreach (Node n in GameObject.FindObjectsOfType<Node>().ToList())
+        {
+            if (GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+            {
+                neighbourNodes.Add(n);
+            }
+        }
+        int chosenNode = Random.Range(0, neighbourNodes.Count);
+        targetNode = neighbourNodes[chosenNode];
+        targetPosition = targetNode.transform.position;
+        IsMoving = true;
     }
-    // ============== Chase Methods ==============
-    void ChaseBlinky()
+    protected void ChaseBlinky()
     {
-        //wyznacz sciezke od siebie do gracza
-        //targetNode = GameManager.Instance.Player.Movement.CurrentNode;
-        Collider[] hitColliders = Physics.OverlapSphere(Vector3.MoveTowards(transform.position, player.transform.position, SearchRadius), SearchRadius);
+        if(GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        {
+            targetPosition = GameManager.Instance.Player.transform.position;
+            targetNode = GameManager.Instance.Player.Movement.CurrentNode;
+            IsMoving = true;
+            return;
+        }
+        Collider[] hitColliders = FindColiders(SearchRadius);
         foreach (Collider col in hitColliders)
         {
             Node colObject = col.gameObject.GetComponent<Node>();
@@ -161,60 +203,96 @@ public class Enemy : MonoBehaviour
                 }
             }
         }
-        //Node PlayerNode = GameManager.Instance.Player.Movement.CurrentNode ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
-        //Node myNode = currentNode;
-        ////wybierz targetNode jako pierwszy wezel
     }
-    void ChaseClide()
+    protected void ChaseWithVector(Vector3 vec)
     {
+        if (GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        {
+            targetPosition = GameManager.Instance.Player.transform.position;
+            targetNode = GameManager.Instance.Player.Movement.CurrentNode;
+            IsMoving = true;
+            return;
+        }
+        Collider[] hitColliders = FindColiders(vec, SearchRadius);
+        foreach (Collider col in hitColliders)
+        {
+            Node colObject = col.gameObject.GetComponent<Node>();
+            if (colObject != null)
+            {
+                if (GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
+                {
+                    targetPosition = colObject.transform.position;
+                    targetNode = colObject;
 
+                    IsMoving = true;
+                }
+            }
+        }
     }
-    void ChaseInky()
+    //void ChaseClide()
+    //{
+    //    if(Vector3.Distance(transform.position, player.transform.position) > ClideRange)
+    //    {
+    //        ChaseBlinky();
+    //    }
+    //    else
+    //    {
+    //        ScatterMove();
+    //    }
+    //}
+    //void ChaseInky()
+    //{
+    //    PlayerLinearMovement plm = GameManager.Instance.Player.Movement;
+    //    if (plm.CurrentNode != null && plm.TargetNode != null)
+    //    {
+    //        Vector3 vec = 2 * (plm.CurrentNode.transform.position - transform.position);
+    //        ChaseWithVector(vec);
+    //    }
+    //    else
+    //    {
+    //        ChaseBlinky();
+    //    }
+    //}
+    //void ChasePinky()
+    //{
+    //    PlayerLinearMovement plm = GameManager.Instance.Player.Movement;
+    //    if (plm.CurrentNode != null && plm.TargetNode != null)
+    //    {
+    //        Vector3 vec = 2 * (plm.TargetNode.transform.position - plm.CurrentNode.transform.position);
+    //        ChaseWithVector(vec);
+    //    }
+    //    else
+    //    {
+    //        ChaseBlinky();
+    //    }
+    //}
+    protected Collider[] FindColiders(int radius)
     {
-
+        Collider[] result = Physics.OverlapSphere(Vector3.MoveTowards(transform.position, player.transform.position, radius), radius);
+        while(result.Length == 0)
+        {
+            result = FindColiders(2 * radius);
+        }
+        return result;
     }
-    void ChasePinky()
+    protected Collider[] FindColiders(Vector3 vec, int radius)
     {
-
+        Collider[] result = Physics.OverlapSphere(vec, radius);
+        while (result.Length == 0)
+        {
+            result = FindColiders(2 * radius);
+        }
+        return result;
     }
     public void ChangeMovingPattern()
     {
-        if (movingPattern == MovingPattern.Chase) movingPattern = MovingPattern.Scatter;
-        else movingPattern = MovingPattern.Chase;
+        if (movingPattern == MovingPattern.Chase)
+        {
+            movingPattern = MovingPattern.Scatter;
+        }
+        else
+        {
+            movingPattern = MovingPattern.Chase;
+        }
     }
-    //void RandomStep()
-    //{
-    //    Vector3 movestep = new Vector3(Random.Range(0, Direction.x * Speed) * Time.deltaTime, Random.Range(0, Direction.y * Speed) * Time.deltaTime, Random.Range(0, Direction.z * Speed) * Time.deltaTime);
-    //    gameObject.transform.position += movestep;
-    //}
-    //void SpiralStep()
-    //{
-    //    Vector3 result = MoveOneStepTowards();
-    //    double a = Radius * System.Math.Cos(Time.deltaTime * transform.position[(mainDirection + 1) % 3]);
-    //    double b = Radius * System.Math.Sin(Time.deltaTime * transform.position[(mainDirection + 2) % 3]);
-    //    result[(mainDirection + 1) % 3] += (float)a;
-    //    result[(mainDirection + 2) % 3] += (float)b;
-    //    gameObject.transform.position = result;
-    //}
-    //void ZigzagStep()
-    //{
-    //    //Vector3 result = MoveOneStepTowards();
-    //    Vector3 result = new Vector3();
-    //    double a = Speed * Direction[(mainDirection + 1) % 3] * Time.deltaTime;
-    //    double b = Speed * Direction[(mainDirection + 2) % 3] * Time.deltaTime;
-    //    if (a > transform.position[(mainDirection + 1) % 3] % Radius) a = -a;
-    //    if (b > transform.position[(mainDirection + 1) % 3] % Radius) b = -b;
-    //    result[(mainDirection + 1) % 3] += (float)a;
-    //    result[(mainDirection + 2) % 3] += (float)b;
-    //    gameObject.transform.position = result;
-    //}
-    //void LineStep()
-    //{
-    //    gameObject.transform.position = MoveOneStepTowards();
-    //}
-    //Vector3 MoveOneStepTowards()
-    //{
-    //    float step = Speed * Time.deltaTime;
-    //    return Vector3.MoveTowards(transform.position, targetPosition, step);
-    //}
 }
