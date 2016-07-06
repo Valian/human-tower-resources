@@ -14,7 +14,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     
     void Start()
     {
-        Signals.NodeTriggered += MoveTo;
+        Node.NodeTriggered += MoveTo;
     }
     
 

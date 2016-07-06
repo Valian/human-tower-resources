@@ -8,7 +8,7 @@ public class PlayerBase : MonoBehaviour {
     public PlayerLinearMovement Movement { get; private set; }
     public PlayerAttack Attack { get; private set; }
 
-    void Start()
+    void Awake()
     {
         Movement = GetComponent<PlayerLinearMovement>();
         Attack = GetComponent<PlayerAttack>();

@@ -11,13 +11,7 @@ public class NodeManager : MonoBehaviour {
     public int FloorCount;
 
     private Edge[,] connections;
-
-    void Start()
-    {
-        Generate();
-        SpawnPlayer();
-    }
-
+    
     public void Generate()
     {
         int allNodesCount;
@@ -28,14 +22,6 @@ public class NodeManager : MonoBehaviour {
             ConeRadius, FloorCount, floorNodesCounts);
 
         InitializeNodesAndEdges(floorNodesCounts, nodesLocations);
-    }
-
-    private void SpawnPlayer()
-    {
-        var player = Instantiate<PlayerLinearMovement>(PlayerPrefab);
-        // TODO - jakos sprytniej
-        var node = GetComponentInChildren<Node>();
-        player.SetPosition(node);
     }
 
     public bool IsConnected(int from, int to)

@@ -5,7 +5,10 @@ using System;
 public class Node : MonoBehaviour {
 
     public int NodeId { get; private set; }
-    
+
+    public delegate void NodeCallback(Node node);
+    public static event NodeCallback NodeTriggered;
+
     public void InitNode(int nodeId, Vector3 position)
     {
         this.transform.position = position;
@@ -14,6 +17,14 @@ public class Node : MonoBehaviour {
 
     public void OnGazeTrigger()
     {
-        Signals.CallNodeTriggered(this);
+        CallNodeTriggered(this);
+    }
+
+    private void CallNodeTriggered(Node node)
+    {
+        if (NodeTriggered != null)
+        {
+            NodeTriggered(node);
+        }
     }
 }
