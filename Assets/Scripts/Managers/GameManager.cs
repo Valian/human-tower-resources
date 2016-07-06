@@ -3,33 +3,62 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
-    public PlayerBase PlayerPrefab;
+    public PlayerBase Player;
     public NodeManager NodeManagerPrefab;
     public ScoreManager ScoreManagerPrefab;
 
     private NodeManager nodeManager;
     private ScoreManager scoreManager;
-    private PlayerBase player;
 
-    void Start () {
+    public static GameManager Instance;
+
+    private int ballCount;
+
+    void Awake()
+    {
+        ScoreBall.BallSpawned += OnBallSpawned;
+        ScoreBall.BallCollected += OnBallCollected;
+        Instance = this;
+    }
+
+    void Start ()
+    {
+        StartLevel();
+    }
+
+    private void StartLevel()
+    {
         nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
         scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
-        player = Instantiate<PlayerBase>(PlayerPrefab);
 
         nodeManager.Generate();
         SpawnPlayer();
+    }
+
+    private void FinishLevel()
+    {
+
     }
 
     private void SpawnPlayer()
     {
         // TODO - jakos sprytniej
         var node = nodeManager.GetComponentInChildren<Node>();
-        player.Movement.SetPosition(node);
+        Player.Movement.SetPosition(node);
+    }    
+
+    private void OnBallSpawned(ScoreBall ball)
+    {
+        ballCount += 1;
     }
 
+    private void OnBallCollected(ScoreBall ball)
+    {
+        ballCount -= 1;
+        if(ballCount == 0)
+        {
+            FinishLevel();
+        }
+    }
 
-    // Update is called once per frame
-    void Update () {
-	
-	}
 }

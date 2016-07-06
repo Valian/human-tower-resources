@@ -6,11 +6,11 @@ public class PlayerLinearMovement : MonoBehaviour {
     [Range(0, 50f)]
     public float Speed;
     public bool IsMoving { get { return targetNode != null; } }
-    public bool CanMove { get { return !IsMoving; } }
     public Node CurrentNode { get { return currentNode; } }
 
     private Node currentNode;
     private Node targetNode;
+    private Node previousNode;
     
     void Start()
     {
@@ -22,6 +22,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     {
         currentNode = node;
         targetNode = null;
+        previousNode = null;
         transform.position = node.transform.position;
     }
 
@@ -30,11 +31,13 @@ public class PlayerLinearMovement : MonoBehaviour {
         if (target)
         {
             var manager = GameObject.FindObjectOfType<NodeManager>();
-            var canMove = CanMove && manager.IsConnected(currentNode.NodeId, target.NodeId);
-            if (canMove)
+            var wantsToGoBack = target == previousNode;
+            var canMove = !IsMoving && manager.IsConnected(currentNode.NodeId, target.NodeId);
+            if (wantsToGoBack || canMove)
             {
-                currentNode = null;
+                previousNode = currentNode ? currentNode: targetNode;
                 targetNode = target;
+                currentNode = null;
             }
         }
     }
