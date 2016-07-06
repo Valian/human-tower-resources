@@ -75,7 +75,6 @@ public class GameManager : MonoBehaviour {
     {
         if (player.NextTargetNode)
         {
-            Debug.Log("Changing yellow");
             ChangeNodeColor(player.NextTargetNode, Color.yellow);
         }
     }
@@ -103,7 +102,6 @@ public class GameManager : MonoBehaviour {
 
     private void ChangeNodeColor(Node node, Color color)
     {
-        Debug.Log("Changing color");
         node.GetComponent<Renderer>().material.color = color;
     }
 }
