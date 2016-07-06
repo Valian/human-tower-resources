@@ -1,32 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
-using System.Linq;
 
 
-public class Edge : MonoBehaviour {
-
-    private List<EdgeEffects> particleEmitters;
-
+public class Edge : MonoBehaviour
+{
     public void InitEdge(Node from, Node to)
     {
         transform.position = (from.transform.position + to.transform.position) / 2;
-        InitParticles(from.transform.position, to.transform.position);
+        InitLine(from.transform.position, to.transform.position);
     }
 
-    private void InitParticles(Vector3 from, Vector3 to)
+    private void InitLine(Vector3 from, Vector3 to)
     {
-        particleEmitters = GetComponentsInChildren<EdgeEffects>().ToList();
-        for(int i = 0; i < particleEmitters.Count; i++)
-        {
-            if (i < particleEmitters.Count / 2)
-            {
-                particleEmitters[i].Init(from, to, this);
-            } else
-            {
-                particleEmitters[i].Init(to, from, this);
-            }
-        }
-    }  
-            
+        var dotLine = GetComponentInChildren<DotLine>();
+        dotLine.Init(from, to, this);
+    }
 }

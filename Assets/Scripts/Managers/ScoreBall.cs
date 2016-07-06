@@ -11,11 +11,11 @@ public class ScoreBall : MonoBehaviour {
 
     public void Collect()
     {        
-        Destroy(this);
+        Destroy(gameObject);
         CallBallCollected(this);
     }
 
-    public void Start()
+    public virtual void Start()
     {
         CallBallSpawned(this);
     }
