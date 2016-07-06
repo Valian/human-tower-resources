@@ -1,12 +1,8 @@
-/*
-	This script is placed in public domain. The author takes no responsibility for any possible harm.
-	Contributed by Jonathan Czeck
-*/
 using UnityEngine;
 using System.Collections;
 using System;
 
-public class LightningBolt : MonoBehaviour
+public class EdgeEffects : MonoBehaviour
 {
 	public Vector3  target;
 	public int      zigs = 100;
@@ -20,6 +16,7 @@ public class LightningBolt : MonoBehaviour
 	private float           _oneOverZigs;	
 	private Particle[]      _particles;
     private ParticleEmitter _particleEmitter;
+    private LineRenderer    _lineRenderer;
     private bool            _initialized;
     private Edge            _parent;
 
@@ -39,16 +36,17 @@ public class LightningBolt : MonoBehaviour
 		if (_noise == null)
 			_noise = new Perlin();
 
-        float timex = Time.time * speed * 0.1365143f;
-        float timey = Time.time * speed * 1.21688f;
-        float timez = Time.time * speed * 1;
+        float timex = Time.time * speed;
+        float timey = Time.time * speed;
+        float timez = Time.time * speed;        
 		
 		for (int i=0; i < _particles.Length; i++)
 		{
 			Vector3 position = Vector3.Lerp(transform.position, target, _oneOverZigs * (float)i);
-			Vector3 offset = new Vector3(_noise.Noise(timex + position.x, timex + position.y, timex + position.z),
-										_noise.Noise(timey + position.x, timey + position.y, timey + position.z),
-										_noise.Noise(timez + position.x, timez + position.y, timez + position.z));
+			Vector3 offset = new Vector3((float)Math.Sin(timex + position.x),
+                                        (float)Math.Sin(timey + position.y),
+                                        (float)Math.Sin(timez + position.z));
+
 			position += (offset * scale * ((float)_particles.Length/ 2 * _oneOverZigs));
             
             _particles[i].position = position;
@@ -63,6 +61,7 @@ public class LightningBolt : MonoBehaviour
     {
         _oneOverZigs = 1f / (float)zigs;
         _particleEmitter = GetComponent<ParticleEmitter>();
+        _lineRenderer = GetComponent<LineRenderer>();
         _particleEmitter.emit = false;
         transform.position = from;
         target = to;
@@ -70,5 +69,7 @@ public class LightningBolt : MonoBehaviour
         _particles = _particleEmitter.particles;
         _initialized = true;
         _parent = parent;
+        _lineRenderer.SetPosition(0, from);
+        _lineRenderer.SetPosition(1, to);
     }
 }

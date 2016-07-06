@@ -7,7 +7,7 @@ using System.Linq;
 public class Edge : MonoBehaviour {
         
     private float currentHP = 0f;
-    private List<LightningBolt> particleEmitters;
+    private List<EdgeEffects> particleEmitters;
 
     public void InitEdge(Node from, Node to)
     {
@@ -17,7 +17,7 @@ public class Edge : MonoBehaviour {
 
     private void InitParticles(Vector3 from, Vector3 to)
     {
-        particleEmitters = GetComponentsInChildren<LightningBolt>().ToList();
+        particleEmitters = GetComponentsInChildren<EdgeEffects>().ToList();
         for(int i = 0; i < particleEmitters.Count; i++)
         {
             if (i < particleEmitters.Count / 2)
