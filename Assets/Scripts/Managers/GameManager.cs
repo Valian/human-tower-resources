@@ -3,18 +3,16 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
-    public PlayerBase PlayerPrefab;
+    public PlayerBase Player;
     public NodeManager NodeManagerPrefab;
     public ScoreManager ScoreManagerPrefab;
 
     private NodeManager nodeManager;
     private ScoreManager scoreManager;
-    private PlayerBase player;
 
     void Start () {
         nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
         scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
-        player = Instantiate<PlayerBase>(PlayerPrefab);
 
         nodeManager.Generate();
         SpawnPlayer();
@@ -24,12 +22,6 @@ public class GameManager : MonoBehaviour {
     {
         // TODO - jakos sprytniej
         var node = nodeManager.GetComponentInChildren<Node>();
-        player.Movement.SetPosition(node);
-    }
-
-
-    // Update is called once per frame
-    void Update () {
-	
-	}
+        Player.Movement.SetPosition(node);
+    }    
 }
