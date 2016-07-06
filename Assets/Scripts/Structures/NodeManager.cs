@@ -1,29 +1,53 @@
 ﻿using UnityEngine;
 using System.Linq;
 
+public enum GraphType
+{
+    Cone,
+    Cubic
+}
+
 public class NodeManager : MonoBehaviour {
 
     public Node NodeObjectPrefab;
     public Edge EdgeNodePrefab;
     public PlayerLinearMovement PlayerPrefab;
+
+    public GraphType GraphType;
+
     public float ConeHeight;
     public float ConeRadius;
-    public int FloorCount;
+    public int ConeFloorCount;
 
-
+    public Vector3 CubeSize;
+    public int CubePartsCount;
 
     private Edge[,] connections;
     
     public void Generate()
     {
-        int allNodesCount;
-        int[] floorNodesCounts = GenerateFloorNodesCounts(out allNodesCount);
-        connections = new Edge[allNodesCount, allNodesCount];
+        int nodesCount;
+        int[][] edges = null;
+        Vector3[] nodesLocations = null;
 
-        Vector3[][] nodesLocations = NodeLocationsGenerator.GenerateNodesLocations(transform.position, ConeHeight,
-            ConeRadius, FloorCount, floorNodesCounts);
+        switch (GraphType)
+        {
+            case GraphType.Cone:
+                int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
+                connections = new Edge[nodesCount, nodesCount];
+                nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
+                    ConeFloorCount, floorNodesCounts, out edges);
+                break;
+            case GraphType.Cubic:
+                nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
+                connections = new Edge[nodesCount, nodesCount];
+                nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
+                    out edges);
+                break;
+        }
 
-        InitializeNodesAndEdges(floorNodesCounts, nodesLocations);
+        Node[] nodes = InitializeNodes(nodesLocations);
+        InitializeEdges(nodes, edges);
     }
 
     public bool IsConnected(int from, int to)
@@ -31,66 +55,35 @@ public class NodeManager : MonoBehaviour {
         var edge = getEdge(from, to);
         return edge != null;
     }
+
+    private int[] GenerateFloorNodesCounts(out int nodesCount)
+    {
+        int[] floorNodesCounts = new int[ConeFloorCount];
+        for (int i = 0; i < ConeFloorCount; i++)
+        {
+            floorNodesCounts[i] = ConeFloorCount - i;
+        }
+        nodesCount = floorNodesCounts.Sum(a => a);
+        return floorNodesCounts;
+    }
     
-    private void InitializeNodesAndEdges(int[] floorNodesCounts, Vector3[][] nodesLocations)
+    private Node[] InitializeNodes(Vector3[] nodesLocations)
     {
-        Node[] lastNodesFloor = null;
-        Node[] currentNodesFloor = null;
-        int currentNodeId = 0;
-
-        for (int floor = 0; floor < FloorCount; floor++)
+        Node[] nodes = new Node[nodesLocations.Length];
+        for (int nodeId = 0; nodeId < nodesLocations.Length; nodeId++)
         {
-            if (floor > 0)
-            {
-                lastNodesFloor = new Node[currentNodesFloor.Length];
-                currentNodesFloor.CopyTo(lastNodesFloor, 0);
-            }
-
-            currentNodesFloor = InstantiateNodesOnCurrentFloor(floorNodesCounts, nodesLocations, floor,
-                ref currentNodeId);
-
-            InstantiateEdgesOnFloor(currentNodesFloor);
-
-            if (floor > 0)
-            {
-                InstantiateEdgesBetweenTwoFloors(lastNodesFloor, currentNodesFloor);
-            }
+            nodes[nodeId] = InstantiateNode(nodeId, nodesLocations[nodeId]);
         }
+        return nodes;
     }
 
-    private Node[] InstantiateNodesOnCurrentFloor(int[] floorNodesCounts, Vector3[][] nodesLocations, int floor,
-        ref int currentNodeId)
+    private void InitializeEdges(Node[] nodes, int[][] edges)
     {
-        int nodesCount = floorNodesCounts[floor];
-        Node[] currentNodesFloor = new Node[nodesCount];
-        for (int nodeNo = 0; nodeNo < nodesCount; nodeNo++)
+        foreach (int[] edge in edges)
         {
-            currentNodesFloor[nodeNo] = InstantiateNode(currentNodeId, nodesLocations[floor][nodeNo]);
-            currentNodeId++;
-        }
-        return currentNodesFloor;
-    }
-
-    private void InstantiateEdgesBetweenTwoFloors(Node[] floorA, Node[] floorB)
-    {
-        foreach (Node nodeA in floorA)
-        {
-            foreach (Node nodeB in floorB)
-            {
-                InstantiateEdge(nodeA, nodeB);
-            }
-        }
-    }
-
-    private void InstantiateEdgesOnFloor(Node[] floor)
-    {
-        if (floor.Length < 2) return;
-
-        int nodesCount = floor.Length;
-
-        for (int nodeNo = 0; nodeNo < nodesCount; nodeNo++)
-        {
-            InstantiateEdge(floor[nodeNo], nodeNo == nodesCount - 1 ? floor[0] : floor[nodeNo + 1]);
+            int from = edge[0];
+            int to = edge[1];
+            InstantiateEdge(nodes[from], nodes[to]);
         }
     }
 
@@ -102,27 +95,18 @@ public class NodeManager : MonoBehaviour {
         return node;
     }
 
-    private void InstantiateEdge(Node from, Node to)
+    private Edge InstantiateEdge(Node from, Node to)
     {
         Edge edge = Instantiate(EdgeNodePrefab);
         edge.transform.parent = transform;
         edge.InitEdge(from, to);
         connections[from.NodeId, to.NodeId] = connections[to.NodeId, from.NodeId] = edge;
-    }
-
-    private int[] GenerateFloorNodesCounts(out int nodesCount)
-    {
-        int[] floorNodesCounts = new int[FloorCount];
-        for (int i = 0; i < FloorCount; i++)
-        {
-            floorNodesCounts[i] = FloorCount - i;
-        }
-        nodesCount = floorNodesCounts.Sum(a => a);
-        return floorNodesCounts;
+        return edge;
     }
 
     private Edge getEdge(int from, int to)
     {
+        if (connections == null) return null;
         var conn = connections[from, to];
         if (conn == null)
         {

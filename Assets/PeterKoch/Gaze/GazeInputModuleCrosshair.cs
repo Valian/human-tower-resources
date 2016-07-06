@@ -10,7 +10,7 @@ using System.Collections;
 //    - Drag on the crosshair onto this script
 // 3. Call GazeInputModuleCrosshair.DisplayCrosshair = true 
 //    to show the crosshair
-[RequireComponent(typeof(GazeInputModule))]
+[RequireComponent(typeof(GearGazeInputModule))]
 public class GazeInputModuleCrosshair : MonoBehaviour 
 {
 	// To show/hide the crosshair from scripts use:  GazeInputModuleCrosshair.DisplayCrosshair

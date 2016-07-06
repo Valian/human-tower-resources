@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour {
     private ScoreManager scoreManager;
 
     public static GameManager Instance;
+    public NodeManager NodeManagerInstance { get { return nodeManager; } }
 
     private int ballCount;
 
@@ -29,6 +30,7 @@ public class GameManager : MonoBehaviour {
     private void StartLevel()
     {
         nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
+
         scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
 
         nodeManager.Generate();

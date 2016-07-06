@@ -7,6 +7,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     public float Speed;
     public bool IsMoving { get { return targetNode != null; } }
     public Node CurrentNode { get { return currentNode; } }
+    public Node TargetNode { get { return targetNode; } }
 
     private Node currentNode;
     private Node targetNode;
