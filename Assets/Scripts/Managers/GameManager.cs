@@ -10,12 +10,34 @@ public class GameManager : MonoBehaviour {
     private NodeManager nodeManager;
     private ScoreManager scoreManager;
 
-    void Start () {
+    public static GameManager Instance;
+
+    private int ballCount;
+
+    void Awake()
+    {
+        ScoreBall.BallSpawned += OnBallSpawned;
+        ScoreBall.BallCollected += OnBallCollected;
+        Instance = this;
+    }
+
+    void Start ()
+    {
+        StartLevel();
+    }
+
+    private void StartLevel()
+    {
         nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
         scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
 
         nodeManager.Generate();
         SpawnPlayer();
+    }
+
+    private void FinishLevel()
+    {
+
     }
 
     private void SpawnPlayer()
@@ -24,4 +46,19 @@ public class GameManager : MonoBehaviour {
         var node = nodeManager.GetComponentInChildren<Node>();
         Player.Movement.SetPosition(node);
     }    
+
+    private void OnBallSpawned(ScoreBall ball)
+    {
+        ballCount += 1;
+    }
+
+    private void OnBallCollected(ScoreBall ball)
+    {
+        ballCount -= 1;
+        if(ballCount == 0)
+        {
+            FinishLevel();
+        }
+    }
+
 }

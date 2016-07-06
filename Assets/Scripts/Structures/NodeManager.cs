@@ -10,6 +10,8 @@ public class NodeManager : MonoBehaviour {
     public float ConeRadius;
     public int FloorCount;
 
+
+
     private Edge[,] connections;
     
     public void Generate()
