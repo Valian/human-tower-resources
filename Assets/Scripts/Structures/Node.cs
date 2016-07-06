@@ -18,10 +18,6 @@ public class Node : MonoBehaviour {
     public void OnGazeTrigger()
     {
         CallNodeTriggered(this);
-        GameObject.Find("TapDebug").GetComponent<TextMesh>().text = string.Format("Node tapped at {0} {1} {2}", 
-            transform.position.x,
-            transform.position.y,
-            transform.position.z);
     }
 
     private void CallNodeTriggered(Node node)
