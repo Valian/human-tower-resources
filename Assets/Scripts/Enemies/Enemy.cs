@@ -12,6 +12,9 @@ public abstract class Enemy : MonoBehaviour
     [Range(0, 40)]
     public int ChaseTimer;
 
+    [Range(0, 40)]
+    public int FrightenedTimer;
+
     [Range(0, 1000)]
     public int SearchRadius;
 
@@ -36,6 +39,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected bool IsMoving;
     protected bool IsInitialized;
+    protected bool IsFrightened;
     protected Node currentNode;
     protected Node targetNode;
     protected Edge movingOnEdge;
@@ -69,9 +73,11 @@ public abstract class Enemy : MonoBehaviour
         currentNode = targets[Random.Range(0, targets.Count)];
         gameObject.transform.position = currentNode.transform.position;
         IsMoving = false;
+        IsFrightened = false;
         SearchRadius = 117; //tested and seems fine
         ClideRange = 200;
         ChaseTimer = 10;
+        FrightenedTimer = 15;
         //movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
 
@@ -148,6 +154,7 @@ public abstract class Enemy : MonoBehaviour
         }
         IsMoving = true;
     }
+
     void FrightendMove()
     {
         List<Node> neighbourNodes = new List<Node>();
@@ -158,14 +165,16 @@ public abstract class Enemy : MonoBehaviour
                 neighbourNodes.Add(n);
             }
         }
-        int chosenNode = Random.Range(0, neighbourNodes.Count);
+        int chosenNode = Random.Range(0, neighbourNodes.Count-1);
         targetNode = neighbourNodes[chosenNode];
         targetPosition = targetNode.transform.position;
         IsMoving = true;
     }
-    protected void ChaseBlinky()
+
+    protected void ChaseBlinkyyy()
     {
-        if(GameManager.Instance.Player.Movement.CurrentNode && GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        Node playerNode = GameManager.Instance.Player.Movement.CurrentNode ?? GameManager.Instance.Player.Movement.TargetNode;
+        if (GameManager.Instance.GraphManagerInstance.IsConnected(playerNode.NodeId, currentNode.NodeId))
         {
             targetPosition = GameManager.Instance.Player.transform.position;
             targetNode = GameManager.Instance.Player.Movement.CurrentNode;
@@ -188,6 +197,7 @@ public abstract class Enemy : MonoBehaviour
             }
         }
     }
+
     protected void ChaseWithVector(Vector3 vec)
     {
         if (GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
@@ -213,6 +223,22 @@ public abstract class Enemy : MonoBehaviour
             }
         }
     }
+    //protected void ChaseWithDjikstra()
+    protected void ChaseBlinky()
+    {
+        GraphManager graphManager = GameManager.Instance.GraphManagerInstance;
+        //graphManager.GetPath(currentNode.NodeId, targetNode.NodeId);
+        List<int>[] pathsList = graphManager.GetPath(currentNode.NodeId);
+        Node playerNode = GameManager.Instance.Player.Movement.CurrentNode != null ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
+        int targetNodeId = pathsList[playerNode.NodeId].ElementAt(0);
+        while(!graphManager.IsConnected(currentNode.NodeId, targetNodeId))
+        {
+            targetNodeId = pathsList[targetNodeId].ElementAt(0);
+        }
+        targetNode = GameObject.FindObjectsOfType<Node>().ToList().Find(x => x.NodeId == targetNodeId);
+        targetPosition = targetNode.transform.position;
+        IsMoving = true;
+    }
     protected Collider[] FindColiders(int radius)
     {
         Collider[] result = Physics.OverlapSphere(Vector3.MoveTowards(transform.position, player.transform.position, radius), radius);
@@ -237,10 +263,23 @@ public abstract class Enemy : MonoBehaviour
         {
             movingPattern = MovingPattern.Scatter;
         }
-        else
+        else if (movingPattern == MovingPattern.Scatter)
         {
             movingPattern = MovingPattern.Chase;
         }
+        else if (!IsFrightened)
+        {
+            movingPattern = MovingPattern.Chase;
+        }
+    }
+    private void ChangeIsFrightened()
+    {
+        IsFrightened = false;
+    }
+    public void FrightenEnemy()
+    {
+        movingPattern = MovingPattern.Frightened;
+        Invoke("ChangeIsFrightened", FrightenedTimer);
     }
     void OnTriggerEnter(Collider col)
     {

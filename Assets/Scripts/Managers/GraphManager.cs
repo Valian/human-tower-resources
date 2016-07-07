@@ -248,4 +248,55 @@ public class GraphManager : MonoBehaviour
         }
         return conn;
     }
+
+    public List<int>[] GetPath(int start)
+    {
+        int len = connections.GetLength(0);
+        int[] dist = new int[len];
+        List<int>[] path = new List<int>[len];
+        List<int> queue = new List<int>();
+
+        for (int i = 0; i<len; i++)
+        {
+            dist[i] = int.MaxValue;
+            queue.Add(i);
+            path[i] = new List<int>();
+        }
+        dist[start] = 0;
+
+        while(queue.Count > 0)
+        {
+            queue.Sort((x, y) => dist[x] - dist[y]);
+            int u = GetNextVertex(queue, dist);
+            for(int v = 0; v < len; v++)
+            {
+                if(connections[u,v] != null)
+                {
+                    if(dist[v] > dist[u] + (connections[u,v] != null ? 1 : 0))
+                    {
+                        dist[v] = dist[u] + (connections[u, v] != null ? 1 : 0);
+                        path[v].Add(u);
+                        queue.Add(v);
+                    }
+                }
+            }
+        }
+        return path;
+    }
+    private int GetNextVertex(List<int> queue, int[] dist)
+    {
+        int min = int.MaxValue;
+        int Vertex = -1;
+
+        foreach (int j in queue)
+        {
+            if (dist[j] <= min)
+            {
+                min = dist[j];
+                Vertex = j;
+            }
+        }
+        queue.Remove(Vertex);
+        return Vertex;
+    }
 }
