@@ -43,8 +43,16 @@ public abstract class Enemy : MonoBehaviour
 
     //private float timer;
     protected GameObject player;
-    protected Vector3 targetPosition;
-
+    private Vector3 _targetPosition;
+    protected Vector3 targetPosition
+    {
+        get { return _targetPosition; }
+        set
+        {
+            _targetPosition = value;
+            transform.LookAt(targetPosition);
+        }
+    } 
     private bool playerMoved = false;
     // Use this for initialization
     void Start()
