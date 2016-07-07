@@ -7,7 +7,7 @@ public static class GraphGeneratorHelper
 {
     private static readonly Random Random = new Random();
 
-    public static Vector3 GetRandomVector3(float randomizationPercentage, Vector3 partSize)
+    public static Vector3 GetRandomVector3(Vector3 partSize, float randomizationPercentage = 1f)
     {
         Vector3 random =
             new Vector3(GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.x / 2,
@@ -25,7 +25,7 @@ public static class GraphGeneratorHelper
         for (int node = 0; node < nodesCount; node++)
         {
             double currentAngle = node * angleFraction;
-            Vector3 randomVector3 = GetRandomVector3(randomizationPercentage, partSize);
+            Vector3 randomVector3 = GetRandomVector3(partSize, randomizationPercentage);
             locations[node] = GetLocationFromRadiusAndAngle(x, y, z, radius, currentAngle) + randomVector3;
         }
 

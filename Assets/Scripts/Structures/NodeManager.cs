@@ -5,7 +5,8 @@ using System.Collections.Generic;
 public enum GraphType
 {
     Cone,
-    Cubic
+    Cubic,
+    Random
 }
 
 public class NodeManager : MonoBehaviour {
@@ -24,6 +25,11 @@ public class NodeManager : MonoBehaviour {
 
     public Vector3 CubeSize;
     public int CubePartsCount;
+
+    public Vector3 RandomCubeSize;
+    public int RandomNodesCount;
+    [Range(0f, 1f)]
+    public float RandomEdgesProbability;
 
     private Edge[,] connections;
     private Node[] nodes;
@@ -45,7 +51,11 @@ public class NodeManager : MonoBehaviour {
                 nodesLocations = GenerateNodeCubicLocations(out edges);
                 break;
             }
-
+            case GraphType.Random:
+            {
+                nodesLocations = GenenerateNodeRandomLocations(out edges);
+                break;
+            }
         }
 
         InitializeNodes(nodesLocations);
@@ -68,6 +78,14 @@ public class NodeManager : MonoBehaviour {
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = CuboidGraphGenerator.GenerateGraph(transform.position, CubeSize, CubePartsCount,
             out edges, RandomizationPercentage);
+        return nodesLocations;
+    }
+
+    private Vector3[] GenenerateNodeRandomLocations(out int[][] edges)
+    {
+        connections = new Edge[RandomNodesCount, RandomNodesCount];
+        Vector3[] nodesLocations = RandomGraphGenerator.GenerateGraph(transform.position, RandomCubeSize,
+            RandomNodesCount, out edges, RandomEdgesProbability);
         return nodesLocations;
     }
 
