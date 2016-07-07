@@ -16,7 +16,7 @@ public static class GraphGeneratorHelper
         return random;
     }
 
-    public static Vector3[] GenerateNodeLocationsOnCircle(float x, float y, float z, float radius, int nodesCount,
+    public static Vector3[] GenerateNodeLocationsOnCircle(Vector3 origin, float radius, int nodesCount,
         float randomizationPercentage, Vector3 partSize)
     {
         Vector3[] locations = new Vector3[nodesCount];
@@ -26,7 +26,7 @@ public static class GraphGeneratorHelper
         {
             double currentAngle = node * angleFraction;
             Vector3 randomVector3 = GetRandomVector3(partSize, randomizationPercentage);
-            locations[node] = GetLocationFromRadiusAndAngle(x, y, z, radius, currentAngle) + randomVector3;
+            locations[node] = GetCartesianFromSphericalCoordinates(origin, radius, currentAngle) + randomVector3;
         }
 
         return locations;
@@ -75,11 +75,13 @@ public static class GraphGeneratorHelper
         return sign;
     }
 
-    private static Vector3 GetLocationFromRadiusAndAngle(float x, float y, float z, float radius, double angle)
+    private static Vector3 GetCartesianFromSphericalCoordinates(Vector3 origin, float radius, double azimuthalAngle,
+        double polarAngle = Math.PI / 2)
     {
-        float newX = x + (float) (radius * Math.Cos(angle));
-        float newZ = z + (float) (radius * Math.Sin(angle));
+        float newX = origin.x + (float) (radius * Math.Sin(polarAngle) * Math.Cos(azimuthalAngle));
+        float newY = origin.y + (float) (radius * Math.Cos(polarAngle));
+        float newZ = origin.z + (float) (radius * Math.Sin(polarAngle) * Math.Sin(azimuthalAngle));
 
-        return new Vector3(newX, y, newZ);
+        return new Vector3(newX, newY, newZ);
     }
 }

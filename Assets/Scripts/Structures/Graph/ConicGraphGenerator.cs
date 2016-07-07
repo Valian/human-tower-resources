@@ -33,8 +33,9 @@ public static class ConicGraphGenerator
             }
 
             Vector3 partSize = new Vector3(floorRadius / 2, floorHeight, floorRadius / 2);
+            Vector3 floorOrigin = new Vector3(coneLocation.x, floorY, coneLocation.z);
 
-            currentNodesFloor = GraphGeneratorHelper.GenerateNodeLocationsOnCircle(coneLocation.x, floorY, coneLocation.z, floorRadius,
+            currentNodesFloor = GraphGeneratorHelper.GenerateNodeLocationsOnCircle(floorOrigin, floorRadius,
                 floorsNodesCounts[floorNo], randomizationPercentage, partSize);
             nodes.AddRange(currentNodesFloor);
 
