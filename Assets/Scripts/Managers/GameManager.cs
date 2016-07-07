@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -18,12 +19,20 @@ public class GameManager : MonoBehaviour {
     void Awake()
     {
         ScoreBall.BallSpawned += OnBallSpawned;
-        ScoreBall.BallCollected += OnBallCollected;
+        ScoreBall.BallCollected += OnBallCollected;        
         Instance = this;
     }
 
     void Start ()
     {
+        try
+        {
+            InjectGearVrStuff();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.ToString());
+        }
         StartLevel();
     }
 
@@ -46,6 +55,9 @@ public class GameManager : MonoBehaviour {
     {
         // TODO - jakos sprytniej
         var node = nodeManager.GetComponentInChildren<Node>();
+        Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
+        Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
+        Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
         Player.Movement.SetPosition(node);
     }    
 
@@ -63,4 +75,56 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void OnPlayerTargetReached(PlayerLinearMovement player)
+    {
+        ChangeNeightboursColors(player.CurrentNode, Color.green);
+    }
+
+    private void OnPlayerNextTargetChanged(PlayerLinearMovement player)
+    {
+        if (player.NextTargetNode)
+        {
+            ChangeNodeColor(player.NextTargetNode, Color.yellow);
+        }
+    }
+
+    private void OnPlayerTargetChanged(PlayerLinearMovement player)
+    {
+        if(player.PreviousNode)
+        {
+            ChangeNeightboursColors(player.PreviousNode, Color.white);
+        }
+        if (player.TargetNode)
+        {
+            ChangeNeightboursColors(player.TargetNode, Color.green);
+        }
+    }
+
+    private void ChangeNeightboursColors(Node node, Color color)
+    {
+        var neightbours = nodeManager.GetNeightbours(node);
+        foreach (var n in neightbours)
+        {
+            ChangeNodeColor(n, color);
+        }
+    }    
+
+    private void ChangeNodeColor(Node node, Color color)
+    {
+        node.GetComponent<Renderer>().material.color = color;
+    }
+
+    private void InjectGearVrStuff()
+    {
+        UnityEngine.VR.VRSettings.renderScale = 1.8f;
+
+        var player = GameObject.FindGameObjectWithTag("Player");
+        var oldCamera = player.transform.FindChild("Camera/Head/Main Camera");
+        var gearCamera = (GameObject)Instantiate(Resources.Load("GearVrCamera"));
+        gearCamera.transform.position = oldCamera.position;
+        gearCamera.transform.rotation = oldCamera.rotation;
+        gearCamera.transform.parent = oldCamera.transform.parent;
+        gearCamera.SetActive(true);
+        oldCamera.gameObject.SetActive(false);
+    }
 }

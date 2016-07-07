@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public enum GraphType
 {
@@ -14,6 +15,8 @@ public class NodeManager : MonoBehaviour {
     public PlayerLinearMovement PlayerPrefab;
 
     public GraphType GraphType;
+    [Range(0f, 1f)]
+    public float RandomizationPercentage;
 
     public float ConeHeight;
     public float ConeRadius;
@@ -23,6 +26,7 @@ public class NodeManager : MonoBehaviour {
     public int CubePartsCount;
 
     private Edge[,] connections;
+    private Node[] nodes;
     
     public void Generate()
     {
@@ -33,27 +37,61 @@ public class NodeManager : MonoBehaviour {
         switch (GraphType)
         {
             case GraphType.Cone:
-                int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
-                connections = new Edge[nodesCount, nodesCount];
-                nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
-                    ConeFloorCount, floorNodesCounts, out edges);
+            {
+                nodesLocations = GenerateNodeConicLocations(out edges);
                 break;
+            }
             case GraphType.Cubic:
-                nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
-                connections = new Edge[nodesCount, nodesCount];
-                nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
-                    out edges);
+            {
+                nodesLocations = GenerateNodeCubicLocations(out edges);
                 break;
+            }
+
         }
 
-        Node[] nodes = InitializeNodes(nodesLocations);
-        InitializeEdges(nodes, edges);
+        InitializeNodes(nodesLocations);
+        InitializeEdges(this.nodes, edges);
+    }
+
+    private Vector3[] GenerateNodeConicLocations(out int[][] edges)
+    {
+        int nodesCount;
+        int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
+            ConeFloorCount, floorNodesCounts, out edges, RandomizationPercentage);
+        return nodesLocations;
+    }
+
+    private Vector3[] GenerateNodeCubicLocations(out int[][] edges)
+    {
+        int nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
+            out edges, RandomizationPercentage);
+        return nodesLocations;
     }
 
     public bool IsConnected(int from, int to)
     {
         var edge = getEdge(from, to);
         return edge != null;
+    }
+
+    public ICollection<Node> GetNeightbours(Node node)
+    {
+        var result = new HashSet<Node>();
+        for(int dim = 0; dim <= 1; dim++)
+        {
+            for (int i = 0; i < connections.GetLength(dim); i++)
+            {
+                if (node.NodeId != i && IsConnected(node.NodeId, i))
+                {
+                    result.Add(nodes[i]);
+                }
+            }
+        }
+        return result;
     }
 
     private int[] GenerateFloorNodesCounts(out int nodesCount)
@@ -67,14 +105,14 @@ public class NodeManager : MonoBehaviour {
         return floorNodesCounts;
     }
     
-    private Node[] InitializeNodes(Vector3[] nodesLocations)
+    private void InitializeNodes(Vector3[] nodesLocations)
     {
         Node[] nodes = new Node[nodesLocations.Length];
         for (int nodeId = 0; nodeId < nodesLocations.Length; nodeId++)
         {
             nodes[nodeId] = InstantiateNode(nodeId, nodesLocations[nodeId]);
         }
-        return nodes;
+        this.nodes = nodes;
     }
 
     private void InitializeEdges(Node[] nodes, int[][] edges)
