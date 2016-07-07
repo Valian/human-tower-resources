@@ -1,19 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class GameManager : MonoBehaviour {
 
     public PlayerBase Player;
+    public int CurrentLevel { get { return 1; } }
     public NodeManager NodeManagerPrefab;
     public ScoreManager ScoreManagerPrefab;
-
+    public bool GameRunning { get; private set; }
+    public int DotsCount { get; private set; }
+    public event Action<bool> GameOver = delegate { };
+     
     private NodeManager nodeManager;
     private ScoreManager scoreManager;
 
     public static GameManager Instance;
     public NodeManager NodeManagerInstance { get { return nodeManager; } }
-
-    private int ballCount;
 
     void Awake()
     {
@@ -24,17 +27,28 @@ public class GameManager : MonoBehaviour {
 
     void Start ()
     {
-        StartLevel();
+        //StartLevel();
     }
 
-    private void StartLevel()
-    {
+    public void StartLevel()
+    {        
         nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
 
-        scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
+        if (scoreManager == null)
+        {
+            scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
+        }
 
         nodeManager.Generate();
         SpawnPlayer();
+        GameRunning = true;
+    }
+
+    public void EndGame(bool canceledByUser = false)
+    {
+        Destroy(nodeManager);
+        GameRunning = false;
+        GameOver(canceledByUser);
     }
 
     private void FinishLevel()
@@ -49,18 +63,19 @@ public class GameManager : MonoBehaviour {
         Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
         Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
+        Player.Stats.ResetStats();
         Player.Movement.SetPosition(node);
     }    
 
     private void OnBallSpawned(ScoreBall ball)
     {
-        ballCount += 1;
+        DotsCount += 1;
     }
 
     private void OnBallCollected(ScoreBall ball)
     {
-        ballCount -= 1;
-        if(ballCount == 0)
+        DotsCount -= 1;
+        if(DotsCount == 0)
         {
             FinishLevel();
         }

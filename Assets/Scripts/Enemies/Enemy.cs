@@ -78,6 +78,7 @@ public abstract class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!GameManager.Instance.GameRunning) return;
         if (!IsInitialized) Init();
         if (IsMoving)
         {
@@ -238,6 +239,13 @@ public abstract class Enemy : MonoBehaviour
         else
         {
             movingPattern = MovingPattern.Chase;
+        }
+    }
+    void OnTriggerEnter(Collider col)
+    {
+        if (col.tag == "Player")
+        {
+            player.GetComponent<PlayerStats>().GetHit();
         }
     }
 }
