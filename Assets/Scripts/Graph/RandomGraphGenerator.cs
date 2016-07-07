@@ -2,22 +2,24 @@
 using UnityEngine;
 using Random = System.Random;
 
-public static class RandomGraphGenerator
+public class RandomGraphGenerator : IGraphGenerator
 {
-    public static Vector3[] GenerateGraph(Vector3 location, Vector3 cubeSize, int nodesCount, out int[][] edges,
-        float edgesProbability = 0.5f)
+    public Vector3[] GenerateGraph(IGraphProperties graphProperties, out int[][] edges)
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
 
-        GenerateNodes(cubeSize, nodesCount, nodes);
-        GenerateEdges(nodesCount, edgesProbability, edgesList);
+        RandomGraphProperties randomGraphProperties = graphProperties as RandomGraphProperties;;
+
+        GenerateNodes(randomGraphProperties.Location, randomGraphProperties.Size, randomGraphProperties.NodesCount,
+            nodes);
+        GenerateEdges(randomGraphProperties.NodesCount, randomGraphProperties.EdgesProbability, edgesList);
 
         edges = edgesList.ToArray();
         return nodes.ToArray();
     }
 
-    private static void GenerateNodes(Vector3 cubeSize, int nodesCount, List<Vector3> nodes)
+    private static void GenerateNodes(Vector3 location, Vector3 cubeSize, int nodesCount, List<Vector3> nodes)
     {
         for (int i = 0; i < nodesCount; i++)
         {

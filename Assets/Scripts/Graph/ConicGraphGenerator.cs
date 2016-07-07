@@ -1,30 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public static class ConicGraphGenerator
+public class ConicGraphGenerator : IGraphGenerator
 {
-    /// <summary>
-    ///     Floors are defined as horizontal parallel panes evenly distibuted through the <paramref name="coneHeight" />.
-    ///     The nodes are distributed evenly on circles obtained as the instersections of the panes and the cone of given
-    ///     parameters.
-    ///     <paramref name="coneLocation" /> is defined at cone base center.
-    /// </summary>
-    public static Vector3[] GenerateGraph(Vector3 coneLocation, float coneHeight, float coneRadius,
-        int floorsCount, int[] floorsNodesCounts, out int[][] edges, float randomizationPercentage = 0f)
+    public Vector3[] GenerateGraph(IGraphProperties graphProperties, out int[][] edges)
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
         Vector3[] lastNodesFloor = null;
         Vector3[] currentNodesFloor = null;
+        ConicGraphProperties conicGraphProperties = graphProperties as ConicGraphProperties;
 
-        float coneTopY = coneLocation.y + coneHeight;
-        float floorHeight = coneHeight / (floorsCount - 1);
+        float coneTopY = conicGraphProperties.Location.y + conicGraphProperties.Height;
+        float floorHeight = conicGraphProperties.Height / (conicGraphProperties.FloorsCount - 1);
 
-        for (int floorNo = 0; floorNo < floorsCount; floorNo++)
+        for (int floorNo = 0; floorNo < conicGraphProperties.FloorsCount; floorNo++)
         {
-            float floorY = coneLocation.y + floorNo * floorHeight;
+            float floorY = conicGraphProperties.Location.y + floorNo * floorHeight;
             float newConeHeight = coneTopY - floorY;
-            float floorRadius = coneRadius * newConeHeight / coneHeight;
+            float floorRadius = conicGraphProperties.BaseRadius * newConeHeight / conicGraphProperties.Height;
 
             if (floorNo > 0)
             {
@@ -33,10 +27,10 @@ public static class ConicGraphGenerator
             }
 
             Vector3 partSize = new Vector3(floorRadius / 2, floorHeight, floorRadius / 2);
-            Vector3 floorOrigin = new Vector3(coneLocation.x, floorY, coneLocation.z);
+            Vector3 floorOrigin = new Vector3(conicGraphProperties.Location.x, floorY, conicGraphProperties.Location.z);
 
             currentNodesFloor = GraphGeneratorHelper.GenerateNodeLocationsOnCircle(floorOrigin, floorRadius,
-                floorsNodesCounts[floorNo], randomizationPercentage, partSize);
+                conicGraphProperties.FloorsNodesCounts[floorNo], conicGraphProperties.RandomizationPercentage, partSize);
             nodes.AddRange(currentNodesFloor);
 
             edgesList.AddRange(GraphGeneratorHelper.GetEdgesOnFloor(currentNodesFloor, nodes));

@@ -1,20 +1,23 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
-public class CubicGraphGenerator
+public class CubicGraphGenerator : IGraphGenerator
 {
-    public static Vector3[] GenerateGraph(Vector3 location, Vector3 size, int partsCount, out int[][] edges,
-        float randomizationPercentage = 0f)
+    public Vector3[] GenerateGraph(IGraphProperties graphProperties, out int[][] edges)
     {
         List<Vector3> nodes = new List<Vector3>();
         List<int[]> edgesList = new List<int[]>();
-        Vector3[,,] nodesMesh = new Vector3[partsCount, partsCount, partsCount];
 
-        Vector3 partSize = size / (partsCount - 1);
+        CubicGraphProperties cubicGraphProperties = graphProperties as CubicGraphProperties;;
+        Vector3[,,] nodesMesh =
+            new Vector3[cubicGraphProperties.PartsCount, cubicGraphProperties.PartsCount,
+                cubicGraphProperties.PartsCount];
 
-        GenerateNodes(location, partsCount, randomizationPercentage, partSize, nodesMesh, nodes);
-        GenerateEdges(partsCount, edgesList, nodes, nodesMesh);
+        Vector3 partSize = cubicGraphProperties.Size / (cubicGraphProperties.PartsCount - 1);
+
+        GenerateNodes(cubicGraphProperties.Location, cubicGraphProperties.PartsCount,
+            cubicGraphProperties.RandomizationPercentage, partSize, nodesMesh, nodes);
+        GenerateEdges(cubicGraphProperties.PartsCount, edgesList, nodes, nodesMesh);
 
         edges = edgesList.ToArray();
         return nodes.ToArray();
