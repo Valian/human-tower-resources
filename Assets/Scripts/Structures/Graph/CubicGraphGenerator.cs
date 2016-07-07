@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CuboidGraphGenerator
+public class CubicGraphGenerator
 {
     public static Vector3[] GenerateGraph(Vector3 location, Vector3 size, int partsCount, out int[][] edges,
         float randomizationPercentage = 0f)

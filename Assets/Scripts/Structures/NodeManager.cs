@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public enum GraphType
 {
-    Cone,
+    Conic,
     Cubic,
     Random
 }
@@ -41,7 +41,7 @@ public class NodeManager : MonoBehaviour {
 
         switch (GraphType)
         {
-            case GraphType.Cone:
+            case GraphType.Conic:
             {
                 nodesLocations = GenerateNodeConicLocations(out edges);
                 break;
@@ -76,7 +76,7 @@ public class NodeManager : MonoBehaviour {
     {
         int nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
         connections = new Edge[nodesCount, nodesCount];
-        Vector3[] nodesLocations = CuboidGraphGenerator.GenerateGraph(transform.position, CubeSize, CubePartsCount,
+        Vector3[] nodesLocations = CubicGraphGenerator.GenerateGraph(transform.position, CubeSize, CubePartsCount,
             out edges, RandomizationPercentage);
         return nodesLocations;
     }
