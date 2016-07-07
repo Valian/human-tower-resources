@@ -60,6 +60,7 @@ public abstract class Enemy : MonoBehaviour
 
     public void SetPosition(Node node)
     {
+        if (node == null) return;
         currentNode = node;
         targetNode = null;
 
@@ -171,7 +172,7 @@ public abstract class Enemy : MonoBehaviour
         IsMoving = true;
     }
 
-    protected void ChaseBlinkyyy()
+    protected void ChaseBlinky()
     {
         Node playerNode = GameManager.Instance.Player.Movement.CurrentNode ?? GameManager.Instance.Player.Movement.TargetNode;
         if (GameManager.Instance.GraphManagerInstance.IsConnected(playerNode.NodeId, currentNode.NodeId))
@@ -189,9 +190,13 @@ public abstract class Enemy : MonoBehaviour
             {
                 if(GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
                 {
-                    targetPosition = colObject.transform.position;
-                    targetNode = colObject;
 
+                    targetNode = colObject;
+                    targetPosition = colObject.transform.position;
+                    if (targetNode == currentNode)
+                    {
+                        ChaseWithDjikstra();
+                    }
                     IsMoving = true;
                 }
             }
@@ -215,29 +220,37 @@ public abstract class Enemy : MonoBehaviour
             {
                 if (GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
                 {
-                    targetPosition = colObject.transform.position;
                     targetNode = colObject;
-
+                    targetPosition = colObject.transform.position;
+                    if (targetNode == currentNode)
+                    {
+                        ChaseWithDjikstra();
+                    }
                     IsMoving = true;
                 }
             }
         }
     }
-    //protected void ChaseWithDjikstra()
-    protected void ChaseBlinky()
+    protected void ChaseWithDjikstra()
     {
         GraphManager graphManager = GameManager.Instance.GraphManagerInstance;
-        //graphManager.GetPath(currentNode.NodeId, targetNode.NodeId);
-        List<int>[] pathsList = graphManager.GetPath(currentNode.NodeId);
+        
         Node playerNode = GameManager.Instance.Player.Movement.CurrentNode != null ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
+        if(graphManager.IsConnected(currentNode.NodeId, playerNode.NodeId))
+        {
+            targetNode = GameObject.FindObjectsOfType<Node>().ToList().Find(x => x.NodeId == playerNode.NodeId);
+            targetPosition = targetNode.transform.position;
+            return;
+        }
+
+        List<int>[] pathsList = graphManager.GetPath(currentNode.NodeId);
         int targetNodeId = pathsList[playerNode.NodeId].ElementAt(0);
-        while(!graphManager.IsConnected(currentNode.NodeId, targetNodeId))
+        while (!graphManager.IsConnected(currentNode.NodeId, targetNodeId))
         {
             targetNodeId = pathsList[targetNodeId].ElementAt(0);
         }
         targetNode = GameObject.FindObjectsOfType<Node>().ToList().Find(x => x.NodeId == targetNodeId);
         targetPosition = targetNode.transform.position;
-        IsMoving = true;
     }
     protected Collider[] FindColiders(int radius)
     {
