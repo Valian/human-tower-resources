@@ -1,22 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
+using Object = UnityEngine.Object;
 
 public class GameManager : MonoBehaviour {
 
     public PlayerBase Player;
     public int CurrentLevel { get { return 1; } }
-    public NodeManager NodeManagerPrefab;
+    public GraphManager GraphManagerPrefab;
     public ScoreManager ScoreManagerPrefab;
     public bool GameRunning { get; private set; }
     public int DotsCount { get; private set; }
     public event Action<bool> GameOver = delegate { };
      
-    private NodeManager nodeManager;
+    private GraphManager graphManager;
     private ScoreManager scoreManager;
 
     public static GameManager Instance;
-    public NodeManager NodeManagerInstance { get { return nodeManager; } }
+    public GraphManager GraphManagerInstance { get { return graphManager; } }
 
     void Awake()
     {
@@ -32,21 +32,21 @@ public class GameManager : MonoBehaviour {
 
     public void StartLevel()
     {        
-        nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
+        graphManager = Instantiate<GraphManager>(GraphManagerPrefab);
 
         if (scoreManager == null)
         {
             scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
         }
 
-        nodeManager.Generate();
+        graphManager.Generate();
         SpawnPlayer();
         GameRunning = true;
     }
 
     public void EndGame(bool canceledByUser = false)
     {
-        Destroy(nodeManager);
+        Destroy(graphManager);
         GameRunning = false;
         GameOver(canceledByUser);
     }
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour {
     private void SpawnPlayer()
     {
         // TODO - jakos sprytniej
-        var node = nodeManager.GetComponentInChildren<Node>();
+        var node = graphManager.GetComponentInChildren<Node>();
         Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
         Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour {
 
     private void ChangeNeightboursColors(Node node, Color color)
     {
-        var neightbours = nodeManager.GetNeightbours(node);
+        var neightbours = graphManager.GetNeightbours(node);
         foreach (var n in neightbours)
         {
             ChangeNodeColor(n, color);

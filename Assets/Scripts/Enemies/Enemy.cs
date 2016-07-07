@@ -127,7 +127,7 @@ public abstract class Enemy : MonoBehaviour
         {
             if(direction == 0)
             {
-                if (n.transform.position[axis] > value && GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+                if (n.transform.position[axis] > value && GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
                 {
                     value = n.transform.position[axis];
                     targetNode = n;
@@ -136,7 +136,7 @@ public abstract class Enemy : MonoBehaviour
             }
             else
             {
-                if(n.transform.position[axis] < value && GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+                if(n.transform.position[axis] < value && GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
                 {
                     value = n.transform.position[axis];
                     targetNode = n;
@@ -152,7 +152,7 @@ public abstract class Enemy : MonoBehaviour
         List<Node> neighbourNodes = new List<Node>();
         foreach (Node n in GameObject.FindObjectsOfType<Node>().ToList())
         {
-            if (GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
+            if (GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, n.NodeId))
             {
                 neighbourNodes.Add(n);
             }
@@ -164,7 +164,7 @@ public abstract class Enemy : MonoBehaviour
     }
     protected void ChaseBlinky()
     {
-        if(GameManager.Instance.Player.Movement.CurrentNode && GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        if(GameManager.Instance.Player.Movement.CurrentNode && GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
         {
             targetPosition = GameManager.Instance.Player.transform.position;
             targetNode = GameManager.Instance.Player.Movement.CurrentNode;
@@ -177,7 +177,7 @@ public abstract class Enemy : MonoBehaviour
             Node colObject = col.gameObject.GetComponent<Node>();
             if (colObject != null)
             {
-                if(GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
+                if(GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
                 {
                     targetPosition = colObject.transform.position;
                     targetNode = colObject;
@@ -189,7 +189,7 @@ public abstract class Enemy : MonoBehaviour
     }
     protected void ChaseWithVector(Vector3 vec)
     {
-        if (GameManager.Instance.NodeManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
+        if (GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
         {
             targetPosition = GameManager.Instance.Player.transform.position;
             targetNode = GameManager.Instance.Player.Movement.CurrentNode;
@@ -202,7 +202,7 @@ public abstract class Enemy : MonoBehaviour
             Node colObject = col.gameObject.GetComponent<Node>();
             if (colObject != null)
             {
-                if (GameManager.Instance.NodeManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
+                if (GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
                 {
                     targetPosition = colObject.transform.position;
                     targetNode = colObject;

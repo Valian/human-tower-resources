@@ -9,7 +9,8 @@ public enum GraphType
     Random
 }
 
-public class NodeManager : MonoBehaviour {
+public class GraphManager : MonoBehaviour
+{
 
     public Node NodeObjectPrefab;
     public Edge EdgeNodePrefab;
@@ -33,7 +34,7 @@ public class NodeManager : MonoBehaviour {
 
     private Edge[,] connections;
     private Node[] nodes;
-    
+
     public void Generate()
     {
         int[][] edges = null;
@@ -42,20 +43,20 @@ public class NodeManager : MonoBehaviour {
         switch (GraphType)
         {
             case GraphType.Conic:
-            {
-                nodesLocations = GenerateNodeConicLocations(out edges);
-                break;
-            }
+                {
+                    nodesLocations = GenerateNodeConicLocations(out edges);
+                    break;
+                }
             case GraphType.Cubic:
-            {
-                nodesLocations = GenerateNodeCubicLocations(out edges);
-                break;
-            }
+                {
+                    nodesLocations = GenerateNodeCubicLocations(out edges);
+                    break;
+                }
             case GraphType.Random:
-            {
-                nodesLocations = GenenerateNodeRandomLocations(out edges);
-                break;
-            }
+                {
+                    nodesLocations = GenenerateNodeRandomLocations(out edges);
+                    break;
+                }
         }
 
         InitializeNodes(nodesLocations);
@@ -98,7 +99,7 @@ public class NodeManager : MonoBehaviour {
     public ICollection<Node> GetNeightbours(Node node)
     {
         var result = new HashSet<Node>();
-        for(int dim = 0; dim <= 1; dim++)
+        for (int dim = 0; dim <= 1; dim++)
         {
             for (int i = 0; i < connections.GetLength(dim); i++)
             {
@@ -121,7 +122,7 @@ public class NodeManager : MonoBehaviour {
         nodesCount = floorNodesCounts.Sum(a => a);
         return floorNodesCounts;
     }
-    
+
     private void InitializeNodes(Vector3[] nodesLocations)
     {
         Node[] nodes = new Node[nodesLocations.Length];

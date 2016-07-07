@@ -36,7 +36,7 @@ public class PlayerLinearMovement : MonoBehaviour {
     {
         if (target)
         {
-            var manager = GameObject.FindObjectOfType<NodeManager>();
+            var manager = GameObject.FindObjectOfType<GraphManager>();
             var wantsToGoBack = target == PreviousNode;
             var canMove = !IsMoving && manager.IsConnected(CurrentNode.NodeId, target.NodeId);
             if (wantsToGoBack || canMove)
