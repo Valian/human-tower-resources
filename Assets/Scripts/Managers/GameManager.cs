@@ -1,20 +1,23 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
+using Object = UnityEngine.Object;
+using System.Linq;
 
 public class GameManager : MonoBehaviour {
 
     public PlayerBase Player;
-    public NodeManager NodeManagerPrefab;
+    public int CurrentLevel { get { return 1; } }
+    public GraphManager GraphManagerPrefab;
     public ScoreManager ScoreManagerPrefab;
-
-    private NodeManager nodeManager;
+    public bool GameRunning { get; private set; }
+    public int DotsCount { get; private set; }
+    public event Action<bool> GameOver = delegate { };
+     
+    private GraphManager graphManager;
     private ScoreManager scoreManager;
 
     public static GameManager Instance;
-    public NodeManager NodeManagerInstance { get { return nodeManager; } }
-
-    private int ballCount;
+    public GraphManager GraphManagerInstance { get { return graphManager; } }
 
     void Awake()
     {
@@ -26,6 +29,7 @@ public class GameManager : MonoBehaviour {
     void Start ()
     {
         try
+        
         {
             InjectGearVrStuff();
         }
@@ -33,17 +37,28 @@ public class GameManager : MonoBehaviour {
         {
             Debug.LogError(e.ToString());
         }
-        StartLevel();
+        //StartLevel();
     }
 
-    private void StartLevel()
-    {
-        nodeManager = Instantiate<NodeManager>(NodeManagerPrefab);
+    public void StartLevel()
+    {        
+        graphManager = Instantiate<GraphManager>(GraphManagerPrefab);
 
-        scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
+        if (scoreManager == null)
+        {
+            scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
+        }
 
-        nodeManager.Generate();
+        graphManager.Generate();
         SpawnPlayer();
+        GameRunning = true;
+    }
+
+    public void EndGame(bool canceledByUser = false)
+    {
+        Destroy(graphManager);
+        GameRunning = false;
+        GameOver(canceledByUser);
     }
 
     private void FinishLevel()
@@ -54,22 +69,23 @@ public class GameManager : MonoBehaviour {
     private void SpawnPlayer()
     {
         // TODO - jakos sprytniej
-        var node = nodeManager.GetComponentInChildren<Node>();
+        var node = graphManager.GetComponentInChildren<Node>();
         Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
         Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
+        Player.Stats.ResetStats();
         Player.Movement.SetPosition(node);
     }    
 
     private void OnBallSpawned(ScoreBall ball)
     {
-        ballCount += 1;
+        DotsCount += 1;
     }
 
     private void OnBallCollected(ScoreBall ball)
     {
-        ballCount -= 1;
-        if(ballCount == 0)
+        DotsCount -= 1;
+        if(DotsCount == 0)
         {
             FinishLevel();
         }
@@ -102,7 +118,7 @@ public class GameManager : MonoBehaviour {
 
     private void ChangeNeightboursColors(Node node, Color color)
     {
-        var neightbours = nodeManager.GetNeightbours(node);
+        var neightbours = graphManager.GetNeightbours(node);
         foreach (var n in neightbours)
         {
             ChangeNodeColor(n, color);
@@ -118,13 +134,54 @@ public class GameManager : MonoBehaviour {
     {
         UnityEngine.VR.VRSettings.renderScale = 1.8f;
 
-        var player = GameObject.FindGameObjectWithTag("Player");
-        var oldCamera = player.transform.FindChild("Camera/Head/Main Camera");
+        GameObject player;
+        var playerCandidates = GameObject.FindGameObjectsWithTag("Player")
+            .Where(x=>x.transform.parent==null);
+        if (playerCandidates.Count() == 1)
+        {
+            player = playerCandidates.First();
+        }
+        else
+        {
+            player = null;
+            Debug.LogError(string.Format("Player candidates: {0}", playerCandidates.Count()));
+        }
+        Debug.Log("Player: " + player == null ? false.ToString() : player.name);
+        var oldCamera = FindOldCamera(player);
+        Debug.Log("oldCamera: " + (oldCamera != null));
         var gearCamera = (GameObject)Instantiate(Resources.Load("GearVrCamera"));
-        gearCamera.transform.position = oldCamera.position;
-        gearCamera.transform.rotation = oldCamera.rotation;
+        Debug.Log("gearCamera: " + (gearCamera != null));
         gearCamera.transform.parent = oldCamera.transform.parent;
+        gearCamera.transform.position = oldCamera.transform.position;
+        gearCamera.transform.rotation = oldCamera.transform.rotation;
+        gearCamera.transform.localScale = oldCamera.transform.localScale;
         gearCamera.SetActive(true);
         oldCamera.gameObject.SetActive(false);
+        Debug.Log("Done Injecting GearVR Stuff");
+    }
+
+    private GameObject FindOldCamera(GameObject player)
+    {
+        GameObject cam = null;
+        var camTransform = player.transform.FindChild("Camera/Head/Main Camera").gameObject;
+        if (camTransform)
+        {
+            cam = camTransform.gameObject;
+        }
+        if (!cam)
+        {
+            var cams = GameObject.FindGameObjectsWithTag("MainCamera")
+                .Where(x => GetComponent<Camera>());
+            if (cams.Count() == 1)
+            {
+                cam = cams.First();
+            }
+            else
+            {
+                Debug.LogWarning(string.Format("Found {0} old cameras before swap", cams.Count()));
+            }
+        }
+
+        return cam;
     }
 }
