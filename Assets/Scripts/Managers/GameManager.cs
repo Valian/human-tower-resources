@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 
 using Object = UnityEngine.Object;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -76,15 +77,16 @@ public class GameManager : MonoBehaviour
 
     public void LooseLife()
     {
-        ClearAvailableNodesColor();
+        ClearNodesModifications();
         SpawnPlayer();
         LifeLost();
     }
 
-    private void ClearAvailableNodesColor()
+    private void ClearNodesModifications()
     {
         foreach (Node n in graphManager.Nodes)
         {
+            n.Show();
             ChangeNodeColor(n, Color.white);
         }
     }
@@ -139,6 +141,14 @@ public class GameManager : MonoBehaviour
 
     private void OnPlayerTargetChanged(PlayerLinearMovement player)
     {
+        foreach(var n in graphManager.Nodes)
+        {
+            if (n != player.CurrentNode)
+            {
+                n.Show();
+            }
+        }   
+
         if (player.PreviousNode)
         {
             ChangeNeightboursColors(player.PreviousNode, Color.white);
@@ -146,6 +156,7 @@ public class GameManager : MonoBehaviour
         if (player.TargetNode)
         {
             ChangeNeightboursColors(player.TargetNode, Color.green);
+            player.TargetNode.Hide();
         }
     }
 
