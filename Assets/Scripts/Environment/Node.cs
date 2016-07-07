@@ -41,7 +41,6 @@ public class Node : MonoBehaviour {
 
     public void Hide()
     {
-        Debug.Log("Hide");
         if(coroutine == null)
         {
             coroutine = HideCoroutine();
@@ -66,7 +65,6 @@ public class Node : MonoBehaviour {
         {
             var scale = 1 + ((time - Time.time) * 1f / HideTime);
             transform.localScale = initialScale * scale;
-            Debug.Log(scale);
             yield return null;
         }
         transform.localScale = new Vector3(0, 0, 0);
