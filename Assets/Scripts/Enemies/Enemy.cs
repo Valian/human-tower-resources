@@ -45,13 +45,15 @@ public abstract class Enemy : MonoBehaviour
     protected GameObject player;
     protected Vector3 targetPosition;
 
+    private bool playerMoved = false;
     // Use this for initialization
     void Start()
     {
         IsInitialized = false;
-
+        GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
     }
+
     public void SetPosition(Node node)
     {
         currentNode = node;
@@ -80,7 +82,7 @@ public abstract class Enemy : MonoBehaviour
     {
         if (!GameManager.Instance.GameRunning) return;
         if (!IsInitialized) Init();
-        if (IsMoving)
+        if (IsMoving && playerMoved)
         {
             var diff = targetPosition - transform.position;
             if (diff.magnitude <= this.Speed * Time.deltaTime)
@@ -96,7 +98,6 @@ public abstract class Enemy : MonoBehaviour
         else
         {
             if(transform.position != player.transform.position) SetNewTarget();
-            //SetNewTarget();
         }
         
     }
@@ -247,5 +248,10 @@ public abstract class Enemy : MonoBehaviour
         {
             player.GetComponent<PlayerStats>().GetHit();
         }
+    }
+
+    private void Movement_FirstMoveDone(bool val)
+    {
+        playerMoved = val;
     }
 }

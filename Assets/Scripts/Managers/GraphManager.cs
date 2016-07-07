@@ -15,6 +15,7 @@ public class GraphManager : MonoBehaviour
     public Node NodeObjectPrefab;
     public Edge EdgeNodePrefab;
     public PlayerLinearMovement PlayerPrefab;
+    public Node[] Nodes { get; private set; }
 
     public GraphType GraphType;
     [Range(0f, 1f)]
@@ -33,60 +34,64 @@ public class GraphManager : MonoBehaviour
     public float RandomEdgesProbability;
 
     private Edge[,] connections;
-    private Node[] nodes;
 
     private readonly ConicGraphGenerator _conicGraphGenerator = new ConicGraphGenerator();
     private readonly CubicGraphGenerator _cubicGraphGenerator = new CubicGraphGenerator();
     private readonly RandomGraphGenerator _randomGraphGenerator = new RandomGraphGenerator();
 
-    public void Generate()
+    public void Generate(GraphType graphType, IGraphProperties properties = null)
     {
         int[][] edges = null;
         Vector3[] nodesLocations = null;
 
-        switch (GraphType)
+        switch (graphType)
         {
             case GraphType.Conic:
-            {
-                ConicGraphProperties conicGraphProperties = new ConicGraphProperties
                 {
-                    Location = transform.position,
-                    RandomizationPercentage = RandomizationPercentage,
-                    Height = ConeHeight,
-                    FloorsCount = ConeFloorCount,
-                    BaseRadius = ConeRadius
-                };
-                nodesLocations = GenerateNodeConicLocations(conicGraphProperties, out edges);
-                break;
-            }
+                    ConicGraphProperties conicGraphProperties = (ConicGraphProperties)properties ?? new ConicGraphProperties
+                    {
+                        Location = transform.position,
+                        RandomizationPercentage = RandomizationPercentage,
+                        Height = ConeHeight,
+                        FloorsCount = ConeFloorCount,
+                        BaseRadius = ConeRadius
+                    };
+                    nodesLocations = GenerateNodeConicLocations(conicGraphProperties, out edges);
+                    break;
+                }
             case GraphType.Cubic:
-            {
-                CubicGraphProperties cubicGraphProperties = new CubicGraphProperties
                 {
-                    RandomizationPercentage = RandomizationPercentage,
-                    Location = transform.position,
-                    PartsCount = CubePartsCount,
-                    Size = CubeSize
-                };
-                nodesLocations = GenerateNodeCubicLocations(cubicGraphProperties, out edges);
-                break;
-            }
+                    CubicGraphProperties cubicGraphProperties = (CubicGraphProperties)properties ?? new CubicGraphProperties
+                    {
+                        RandomizationPercentage = RandomizationPercentage,
+                        Location = transform.position,
+                        PartsCount = CubePartsCount,
+                        Size = CubeSize
+                    };
+                    nodesLocations = GenerateNodeCubicLocations(cubicGraphProperties, out edges);
+                    break;
+                }
             case GraphType.Random:
-            {
-                RandomGraphProperties randomGraphProperties = new RandomGraphProperties
                 {
-                    Location = transform.position,
-                    NodesCount = RandomNodesCount,
-                    EdgesProbability = RandomEdgesProbability,
-                    Size = RandomCubeSize
-                };
-                nodesLocations = GenenerateNodeRandomLocations(randomGraphProperties, out edges);
-                break;
-            }
+                    RandomGraphProperties randomGraphProperties = (RandomGraphProperties)properties ?? new RandomGraphProperties
+                    {
+                        Location = transform.position,
+                        NodesCount = RandomNodesCount,
+                        EdgesProbability = RandomEdgesProbability,
+                        Size = RandomCubeSize
+                    };
+                    nodesLocations = GenenerateNodeRandomLocations(randomGraphProperties, out edges);
+                    break;
+                }
         }
 
         InitializeNodes(nodesLocations);
-        InitializeEdges(this.nodes, edges);
+        InitializeEdges(this.Nodes, edges);
+    }
+
+    public void Generate()
+    {
+        Generate(GraphType);
     }
 
     public Vector3[] GenerateNodeConicLocations(ConicGraphProperties conicGraphProperties, out int[][] edges)
@@ -101,7 +106,7 @@ public class GraphManager : MonoBehaviour
 
     public Vector3[] GenerateNodeCubicLocations(CubicGraphProperties cubicGraphProperties, out int[][] edges)
     {
-        int nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
+        int nodesCount = cubicGraphProperties.PartsCount * cubicGraphProperties.PartsCount * cubicGraphProperties.PartsCount;
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = _cubicGraphGenerator.GenerateGraph(cubicGraphProperties, out edges);
         return nodesLocations;
@@ -109,7 +114,7 @@ public class GraphManager : MonoBehaviour
 
     public Vector3[] GenenerateNodeRandomLocations(RandomGraphProperties randomGraphProperties, out int[][] edges)
     {
-        connections = new Edge[RandomNodesCount, RandomNodesCount];
+        connections = new Edge[randomGraphProperties.NodesCount, randomGraphProperties.NodesCount];
         Vector3[] nodesLocations = _randomGraphGenerator.GenerateGraph(randomGraphProperties, out edges);
         return nodesLocations;
     }
@@ -129,7 +134,7 @@ public class GraphManager : MonoBehaviour
             {
                 if (node.NodeId != i && IsConnected(node.NodeId, i))
                 {
-                    result.Add(nodes[i]);
+                    result.Add(Nodes[i]);
                 }
             }
         }
@@ -145,7 +150,12 @@ public class GraphManager : MonoBehaviour
         }
         children.ForEach(Destroy);
         connections = null;
-        nodes = null;
+        Nodes = null;
+    }
+
+    public Node GetRandomNode()
+    {
+        return Nodes[Random.Range(0, Nodes.Length - 1)];
     }
 
     private int[] GenerateFloorNodesCounts(out int nodesCount)
@@ -166,7 +176,7 @@ public class GraphManager : MonoBehaviour
         {
             nodes[nodeId] = InstantiateNode(nodeId, nodesLocations[nodeId]);
         }
-        this.nodes = nodes;
+        this.Nodes = nodes;
     }
 
     private void InitializeEdges(Node[] nodes, int[][] edges)

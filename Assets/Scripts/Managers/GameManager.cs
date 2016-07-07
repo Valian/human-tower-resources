@@ -1,71 +1,114 @@
 ﻿using UnityEngine;
 using System;
+using System.Linq;
+
 using Object = UnityEngine.Object;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour
+{
+    public PlayerBase       Player;
+    public EnemySpawner     EnemiesSpawner;
 
-    public PlayerBase Player;
-    public int CurrentLevel { get { return 1; } }
-    public GraphManager GraphManagerPrefab;
-    public ScoreManager ScoreManagerPrefab;
-    public bool GameRunning { get; private set; }
-    public int DotsCount { get; private set; }
-    public event Action<bool> GameOver = delegate { };
-     
+    public GraphManager     GraphManagerPrefab;
+    public ScoreManager     ScoreManagerPrefab;
+
+    public bool     GameRunning { get; private set; }
+    public int      DotsCount { get; private set; }
+    public int      CurrentLevel { get; private set; }
+
+    public GraphManager GraphManagerInstance { get { return graphManager; } }
+
+    public event Action<bool>   GameEnded = delegate { };
+    public event Action         GameStarted = delegate { };
+    public event Action         LevelStarted = delegate { };
+    public event Action         LevelFinished = delegate { };
+    public event Action         LifeLost = delegate { };
+
     private GraphManager graphManager;
     private ScoreManager scoreManager;
 
     public static GameManager Instance;
-    public GraphManager GraphManagerInstance { get { return graphManager; } }
 
     void Awake()
     {
         ScoreBall.BallSpawned += OnBallSpawned;
-        ScoreBall.BallCollected += OnBallCollected;        
+        ScoreBall.BallCollected += OnBallCollected;
+        
+        graphManager = Instantiate<GraphManager>(GraphManagerPrefab);
+        scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
         Instance = this;
     }
 
-    void Start ()
+    void Start()
     {
-        //StartLevel();
+        Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
+        Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
+        Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
+        LevelManager.InitiateLevels(graphManager.transform.position);       
     }
 
-    public void StartLevel()
-    {        
-        graphManager = Instantiate<GraphManager>(GraphManagerPrefab);
+    public void StartGame()
+    {
+        Player.Stats.ResetStats();
+        CurrentLevel = 1;
+        GameStarted();
+        StartLevel(CurrentLevel);
+    }
 
-        if (scoreManager == null)
-        {
-            scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
-        }
-
-        graphManager.Generate();
+    public void StartLevel(int levelNo)
+    {
+        var levelDef = LevelManager.GetLevelDefinition(levelNo);
+        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings);
+        EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount);
         SpawnPlayer();
         GameRunning = true;
+        LevelStarted();
     }
 
-    public void EndGame(bool canceledByUser = false)
+    public void EndGame(bool success)
     {
-        Destroy(graphManager);
+        graphManager.DestroyGraph();
+        EnemiesSpawner.ClearEnemies();
+        DotsCount = 0;
         GameRunning = false;
-        GameOver(canceledByUser);
+        GameEnded(success);
+    }
+
+    public void LooseLife()
+    {
+        ClearAvailableNodesColor();
+        SpawnPlayer();
+        LifeLost();
+    }
+
+    private void ClearAvailableNodesColor()
+    {
+        foreach (Node n in graphManager.Nodes)
+        {
+            ChangeNodeColor(n, Color.white);
+        }
     }
 
     private void FinishLevel()
     {
-
+        LevelFinished();
+        graphManager.DestroyGraph();
+        CurrentLevel++;
+        if (CurrentLevel > LevelManager.MaxLevelNo)
+        {
+            EndGame(true);
+        }
+        else
+        {
+            StartLevel(CurrentLevel);
+        }
     }
 
     private void SpawnPlayer()
     {
-        // TODO - jakos sprytniej
-        var node = graphManager.GetComponentInChildren<Node>();
-        Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
-        Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
-        Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
-        Player.Stats.ResetStats();
-        Player.Movement.SetPosition(node);
-    }    
+        var node = graphManager.GetRandomNode();
+        Player.Movement.Spawn(node);
+    }
 
     private void OnBallSpawned(ScoreBall ball)
     {
@@ -75,7 +118,7 @@ public class GameManager : MonoBehaviour {
     private void OnBallCollected(ScoreBall ball)
     {
         DotsCount -= 1;
-        if(DotsCount == 0)
+        if (DotsCount == 0)
         {
             FinishLevel();
         }
@@ -96,7 +139,7 @@ public class GameManager : MonoBehaviour {
 
     private void OnPlayerTargetChanged(PlayerLinearMovement player)
     {
-        if(player.PreviousNode)
+        if (player.PreviousNode)
         {
             ChangeNeightboursColors(player.PreviousNode, Color.white);
         }
@@ -113,7 +156,7 @@ public class GameManager : MonoBehaviour {
         {
             ChangeNodeColor(n, color);
         }
-    }    
+    }
 
     private void ChangeNodeColor(Node node, Color color)
     {

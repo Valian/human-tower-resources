@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 public class PlayerLinearMovement : MonoBehaviour {
@@ -10,17 +11,25 @@ public class PlayerLinearMovement : MonoBehaviour {
     public Node TargetNode { get; private set; }
     public Node NextTargetNode { get; private set; }
     public Node PreviousNode { get; private set; }
+    public event Action<bool> FirstMoveChanged = delegate { };
 
     public delegate void PlayerMovement(PlayerLinearMovement player);
     public event PlayerMovement PlayerTargetChanged;
     public event PlayerMovement PlayerTargetReached;
     public event PlayerMovement PlayerNextTargetChanged;
 
+    private bool _firstMoveDone = false;
     void Start()
     {
         Node.NodeTriggered += MoveTo;
     }
     
+    public void Spawn(Node node)
+    {
+        SetPosition(node);
+        _firstMoveDone = false;
+        FirstMoveChanged(false);
+    }
 
     public void SetPosition(Node node)
     {
@@ -36,6 +45,11 @@ public class PlayerLinearMovement : MonoBehaviour {
     {
         if (target)
         {
+            if (!_firstMoveDone)
+            {
+                _firstMoveDone = true;
+                FirstMoveChanged(true);
+            }
             var manager = GameObject.FindObjectOfType<GraphManager>();
             var wantsToGoBack = target == PreviousNode;
             var canMove = !IsMoving && manager.IsConnected(CurrentNode.NodeId, target.NodeId);
