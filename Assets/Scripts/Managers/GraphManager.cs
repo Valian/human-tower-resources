@@ -6,7 +6,8 @@ public enum GraphType
 {
     Conic,
     Cubic,
-    Random
+    Random,
+    Spheric
 }
 
 public class GraphManager : MonoBehaviour
@@ -33,11 +34,17 @@ public class GraphManager : MonoBehaviour
     [Range(0f, 1f)]
     public float RandomEdgesProbability;
 
+    public int SphereFloorsCount;
+    [Range(0f, 1f)]
+    public float SphereEdgesProbability;
+    public float SphereRadius;
+    
     private Edge[,] connections;
 
     private readonly ConicGraphGenerator _conicGraphGenerator = new ConicGraphGenerator();
     private readonly CubicGraphGenerator _cubicGraphGenerator = new CubicGraphGenerator();
     private readonly RandomGraphGenerator _randomGraphGenerator = new RandomGraphGenerator();
+    private readonly SphericGraphGenerator _sphericGraphGenerator = new SphericGraphGenerator();
 
     public void Generate(GraphType graphType, IGraphProperties properties = null)
     {
@@ -83,6 +90,20 @@ public class GraphManager : MonoBehaviour
                     nodesLocations = GenenerateNodeRandomLocations(randomGraphProperties, out edges);
                     break;
                 }
+            case GraphType.Spheric:
+            {
+                SphericGraphProperties sphericGraphProperties = (SphericGraphProperties) properties ??
+                                                                new SphericGraphProperties
+                                                                {
+                                                                    RandomizationPercentage = RandomizationPercentage,
+                                                                    Location = transform.position,
+                                                                    FloorsCount = SphereFloorsCount,
+                                                                    EdgesProbability = SphereEdgesProbability,
+                                                                    Radius = SphereRadius
+                                                                };
+                nodesLocations = GenerateNodeSphericLocations(sphericGraphProperties, out edges);
+                break;
+            }
         }
 
         InitializeNodes(nodesLocations);
@@ -97,7 +118,8 @@ public class GraphManager : MonoBehaviour
     public Vector3[] GenerateNodeConicLocations(ConicGraphProperties conicGraphProperties, out int[][] edges)
     {
         int nodesCount;
-        int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
+        int[] floorNodesCounts = GenerateFloorNodesCounts(conicGraphProperties.FloorsCount, -1,
+            conicGraphProperties.FloorsCount, out nodesCount);
         conicGraphProperties.FloorsNodesCounts = floorNodesCounts;
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = _conicGraphGenerator.GenerateGraph(conicGraphProperties, out edges);
@@ -116,6 +138,16 @@ public class GraphManager : MonoBehaviour
     {
         connections = new Edge[randomGraphProperties.NodesCount, randomGraphProperties.NodesCount];
         Vector3[] nodesLocations = _randomGraphGenerator.GenerateGraph(randomGraphProperties, out edges);
+        return nodesLocations;
+    }
+
+    public Vector3[] GenerateNodeSphericLocations(SphericGraphProperties sphericGraphProperties, out int[][] edges)
+    {
+        int nodesCount;
+        int[] floorNodesCounts = GenerateFloorNodesCounts(2, 2, sphericGraphProperties.FloorsCount, out nodesCount);
+        sphericGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = _sphericGraphGenerator.GenerateGraph(sphericGraphProperties, out edges);
         return nodesLocations;
     }
 
@@ -158,12 +190,12 @@ public class GraphManager : MonoBehaviour
         return Nodes[Random.Range(0, Nodes.Length - 1)];
     }
 
-    private int[] GenerateFloorNodesCounts(out int nodesCount)
-    {
-        int[] floorNodesCounts = new int[ConeFloorCount];
-        for (int i = 0; i < ConeFloorCount; i++)
+    private int[] GenerateFloorNodesCounts(int start, int step, int floorCount, out int nodesCount)    {
+        int[] floorNodesCounts = new int[floorCount];
+        for (int i = 0; i < floorCount; i++)
         {
-            floorNodesCounts[i] = ConeFloorCount - i;
+            floorNodesCounts[i] = start;
+            start += step;
         }
         nodesCount = floorNodesCounts.Sum(a => a);
         return floorNodesCounts;
