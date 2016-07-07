@@ -32,7 +32,7 @@ public class CubicGraphGenerator : IGraphGenerator
             {
                 for (int k = 0; k < partsCount; k++)
                 {
-                    Vector3 randomVector3 = GraphGeneratorHelper.GetRandomVector3(partSize, randomizationPercentage);
+                    Vector3 randomVector3 = GraphGeneratorHelper.GetRandomCartesianCoordinates(partSize, randomizationPercentage);
 
                     Vector3 node = new Vector3(location.x + i * partSize.x, location.y + j * partSize.y,
                         location.x + k * partSize.z) + randomVector3;
