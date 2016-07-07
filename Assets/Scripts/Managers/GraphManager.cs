@@ -135,6 +135,18 @@ public class GraphManager : MonoBehaviour
         }
         return result;
     }
+    
+    public void DestroyGraph()
+    {
+        List<GameObject> children = new List<GameObject>();
+        foreach (Transform child in transform)
+        {
+            children.Add(child.gameObject);
+        }
+        children.ForEach(Destroy);
+        connections = null;
+        nodes = null;
+    }
 
     private int[] GenerateFloorNodesCounts(out int nodesCount)
     {
