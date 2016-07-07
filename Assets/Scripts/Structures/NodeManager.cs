@@ -30,7 +30,6 @@ public class NodeManager : MonoBehaviour {
     
     public void Generate()
     {
-        int nodesCount;
         int[][] edges = null;
         Vector3[] nodesLocations = null;
 
@@ -58,7 +57,7 @@ public class NodeManager : MonoBehaviour {
         int nodesCount;
         int[] floorNodesCounts = GenerateFloorNodesCounts(out nodesCount);
         connections = new Edge[nodesCount, nodesCount];
-        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCone(transform.position, ConeHeight, ConeRadius,
+        Vector3[] nodesLocations = ConicGraphGenerator.GenerateGraph(transform.position, ConeHeight, ConeRadius,
             ConeFloorCount, floorNodesCounts, out edges, RandomizationPercentage);
         return nodesLocations;
     }
@@ -67,7 +66,7 @@ public class NodeManager : MonoBehaviour {
     {
         int nodesCount = CubePartsCount * CubePartsCount * CubePartsCount;
         connections = new Edge[nodesCount, nodesCount];
-        Vector3[] nodesLocations = GraphGenerator.GenerateGraphOnCuboid(transform.position, CubeSize, CubePartsCount,
+        Vector3[] nodesLocations = CuboidGraphGenerator.GenerateGraph(transform.position, CubeSize, CubePartsCount,
             out edges, RandomizationPercentage);
         return nodesLocations;
     }
