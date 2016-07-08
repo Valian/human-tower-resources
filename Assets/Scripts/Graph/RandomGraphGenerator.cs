@@ -23,7 +23,7 @@ public class RandomGraphGenerator : IGraphGenerator
     {
         for (int i = 0; i < nodesCount; i++)
         {
-            nodes.Add(GraphGeneratorHelper.GetRandomVector3(cubeSize));
+            nodes.Add(GraphGeneratorHelper.GetRandomCartesianCoordinates(cubeSize));
         }
     }
 

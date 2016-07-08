@@ -3,11 +3,11 @@ using System.Collections;
 
 public class ScoreBall : MonoBehaviour {
 
-    public int Score;
-
     public delegate void BallCallback(ScoreBall ball);
     public static event BallCallback BallCollected;
     public static event BallCallback BallSpawned;
+
+    public bool isPowerDot { get; set; }
 
     public void Collect()
     {        

@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -17,7 +15,10 @@ public class PlayerStats : MonoBehaviour
         Lifes--;
         if(Lifes < 0)
         {
-            GameManager.Instance.EndGame();
+            GameManager.Instance.EndGame(false);
+        } else
+        {
+            GameManager.Instance.LooseLife();
         }
     }
 }

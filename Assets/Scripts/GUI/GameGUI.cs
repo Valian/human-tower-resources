@@ -16,7 +16,7 @@ public class GameGUI : MonoBehaviour
 
     public void ExitToMenuClick()
     {
-        GameManager.Instance.EndGame();
+        GameManager.Instance.EndGame(false);
         GuiManager.Instance.ShowMenu();
     }
 }

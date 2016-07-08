@@ -7,13 +7,22 @@ public static class GraphGeneratorHelper
 {
     private static readonly Random Random = new Random();
 
-    public static Vector3 GetRandomVector3(Vector3 partSize, float randomizationPercentage = 1f)
+    public static Vector3 GetRandomCartesianCoordinates(Vector3 partSize, float randomizationPercentage = 1f)
     {
         Vector3 random =
             new Vector3(GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.x / 2,
                 GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.y / 2,
                 GetRandomSign() * (float)Random.NextDouble() * randomizationPercentage * partSize.z / 2);
         return random;
+    }
+
+    public static void GetRandomSphericCoordinates(float radiusFrom, float radiusTo, out float radius,
+        out double azimuthalAngle, out double polarAngle, float randomizationPercentage = 1f)
+    {
+        float radiusDiff = radiusTo - radiusFrom;
+        radius = (float) Random.NextDouble() * radiusDiff + radiusFrom;
+        azimuthalAngle = Random.NextDouble() * Math.PI * 2;
+        polarAngle = Random.NextDouble() * Math.PI * 2;
     }
 
     public static Vector3[] GenerateNodeLocationsOnCircle(Vector3 origin, float radius, int nodesCount,
@@ -25,14 +34,33 @@ public static class GraphGeneratorHelper
         for (int node = 0; node < nodesCount; node++)
         {
             double currentAngle = node * angleFraction;
-            Vector3 randomVector3 = GetRandomVector3(partSize, randomizationPercentage);
+            Vector3 randomVector3 = GetRandomCartesianCoordinates(partSize, randomizationPercentage);
             locations[node] = GetCartesianFromSphericalCoordinates(origin, radius, currentAngle) + randomVector3;
         }
 
         return locations;
     }
 
-    public static List<int[]> GetEdgesBetweenTwoFloors(Vector3[] floorA, Vector3[] floorB, List<Vector3> nodes)
+    public static Vector3[] GenerateNodeLocationsInSphereSlice(Vector3 origin, float radiusFrom, float radiusTo,
+        int nodesCount, float randomizationPercentage, Vector3 partSize)
+    {
+        Vector3[] locations = new Vector3[nodesCount];
+
+        for (int node = 0; node < nodesCount; node++)
+        {
+            float radius;
+            double azimuthalAngle, polarAngle;
+            GetRandomSphericCoordinates(radiusFrom, radiusTo, out radius, out azimuthalAngle, out polarAngle,
+                randomizationPercentage);
+            Vector3 randomVector3 = GetRandomCartesianCoordinates(partSize, randomizationPercentage);
+            locations[node] = GetCartesianFromSphericalCoordinates(origin, radius, azimuthalAngle, polarAngle) + randomVector3;
+        }
+
+        return locations;
+    }
+
+    public static List<int[]> GetEdgesBetweenTwoFloors(Vector3[] floorA, Vector3[] floorB, List<Vector3> nodes,
+        float edgesProbability = 1f, float distance = float.MaxValue)
     {
         List<int[]> edges = new List<int[]>();
 
@@ -41,8 +69,13 @@ public static class GraphGeneratorHelper
             int nodeAId = nodes.IndexOf(nodeA);
             foreach (Vector3 nodeB in floorB)
             {
-                int nodeBId = nodes.IndexOf(nodeB);
-                edges.Add(new[] { nodeAId, nodeBId });
+                double probability = Random.NextDouble();
+                if (probability < edgesProbability && (nodeA - nodeB).magnitude < distance)
+                {
+                    int nodeBId = nodes.IndexOf(nodeB);
+                    edges.Add(new[] { nodeAId, nodeBId });
+                }
+
             }
         }
 
@@ -65,8 +98,23 @@ public static class GraphGeneratorHelper
                 });
             }
         }
+        if (floor.Length == 2)
+        {
+            edges.Add(new[] {nodes.IndexOf(floor[0]), nodes.IndexOf(floor[1])});
+        }
 
         return edges;
+    }
+
+    public static int[] GenerateFloorNodesCounts(int start, int step, int floorCount)
+    {
+        int[] floorNodesCounts = new int[floorCount];
+        for (int i = 0; i < floorCount; i++)
+        {
+            floorNodesCounts[i] = start;
+            start += step;
+        }
+        return floorNodesCounts;
     }
 
     private static int GetRandomSign()

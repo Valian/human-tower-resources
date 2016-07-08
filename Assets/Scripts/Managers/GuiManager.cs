@@ -15,7 +15,7 @@ public class GuiManager : MonoBehaviour {
 
     void Start ()
     {
-        GameManager.Instance.GameOver += Instance_GameOver;
+        GameManager.Instance.GameEnded += Instance_GameOver;
         playerMenuPosition = GameManager.Instance.Player.transform.position;
         ShowMenu();
     }

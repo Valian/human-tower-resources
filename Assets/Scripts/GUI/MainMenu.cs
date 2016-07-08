@@ -6,7 +6,7 @@ public class MainMenu : MonoBehaviour
 
     public void StartGameClick()
     {
-        GameManager.Instance.StartLevel();
+        GameManager.Instance.StartGame();
         GuiManager.Instance.HideMenu();
     }
 }

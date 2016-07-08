@@ -1,15 +1,28 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
-public class EnemySpawner : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        gameObject.transform.Rotate(new Vector3(0.1f * Time.deltaTime * Time.time, 0.2f * Time.deltaTime * Time.time, 0.3f * Time.deltaTime * Time.time) * 100);
-	}
+public class EnemySpawner : MonoBehaviour
+{
+    public List<GameObject>     EnemiesPrefabs;
+    private List<GameObject>    _spawnedEnemies;
+    
+    public void SpawnEnemies(int count)
+    {
+        ClearEnemies();
+        _spawnedEnemies = new List<GameObject>();
+        for (int i = 0; i < count; i++)
+        {
+            var enemy = Instantiate(EnemiesPrefabs[i % EnemiesPrefabs.Count]);
+            enemy.transform.parent = transform;
+            _spawnedEnemies.Add(enemy);
+        }
+    }
+    
+    public void ClearEnemies()
+    {
+        if(_spawnedEnemies != null && _spawnedEnemies.Count > 0)
+        {
+            _spawnedEnemies.ForEach(e => Destroy(e.gameObject));
+        }
+    }
 }
