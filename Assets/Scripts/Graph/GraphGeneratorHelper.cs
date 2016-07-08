@@ -59,9 +59,10 @@ public static class GraphGeneratorHelper
         return locations;
     }
 
-    public static List<int[]> GetEdgesBetweenTwoFloors(Vector3[] floorA, Vector3[] floorB, List<Vector3> nodes,
+    public static List<int[]> GetEdgesBetweenTwoSetsAllToAll(Vector3[] floorA, Vector3[] floorB, List<Vector3> nodes,
         float edgesProbability = 1f, float distance = float.MaxValue)
     {
+        bool atLeastOne = false;
         List<int[]> edges = new List<int[]>();
 
         foreach (Vector3 nodeA in floorA)
@@ -74,15 +75,26 @@ public static class GraphGeneratorHelper
                 {
                     int nodeBId = nodes.IndexOf(nodeB);
                     edges.Add(new[] { nodeAId, nodeBId });
+                    atLeastOne = true;
                 }
-
             }
+        }
+
+        if (!atLeastOne && floorA.Length > 0 && floorB.Length > 0)
+        {
+            int randomNodeANo = Random.Next(floorA.Length);
+            int randomNodeBNo = Random.Next(floorB.Length);
+            edges.Add(new[]
+            {
+                nodes.IndexOf(floorA[randomNodeANo]),
+                nodes.IndexOf(floorB[randomNodeBNo])
+            });
         }
 
         return edges;
     }
 
-    public static List<int[]> GetEdgesOnFloor(Vector3[] floor, List<Vector3> nodes)
+    public static List<int[]> GetEdgesInCircle(Vector3[] floor, List<Vector3> nodes, bool withoutLast = false)
     {
         List<int[]> edges = new List<int[]>();
 
@@ -91,11 +103,26 @@ public static class GraphGeneratorHelper
             int nodesCount = floor.Length;
             for (int nodeNo = 0; nodeNo < nodesCount; nodeNo++)
             {
-                edges.Add(new[]
+                if (nodeNo == nodesCount - 1)
                 {
-                    nodes.IndexOf(floor[nodeNo]),
-                    nodeNo == nodesCount - 1 ? nodes.IndexOf(floor[0]) : nodes.IndexOf(floor[nodeNo + 1])
-                });
+                    if (!withoutLast)
+                    {
+                        edges.Add(new[]
+                        {
+                            nodes.IndexOf(floor[nodeNo]),
+                            nodes.IndexOf(floor[0])
+                        });
+                    }
+                }
+                else
+                {
+
+                    edges.Add(new[]
+                    {
+                        nodes.IndexOf(floor[nodeNo]),
+                        nodes.IndexOf(floor[nodeNo + 1])
+                    });
+                }
             }
         }
         if (floor.Length == 2)

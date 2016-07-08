@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
         LevelManager.InitiateLevels(graphManager.transform.position);
         StartCoroutine(ApplyBackgroundHealthIndicator());
+        AudioManager.Instance.TurnOnMusic();
     }
 
     void Update()
@@ -59,6 +60,8 @@ public class GameManager : MonoBehaviour
             Debug.Log("Collecting a power dot");
             PowerDotCollected();
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
         // DEBUG
     }
 
@@ -135,17 +138,14 @@ public class GameManager : MonoBehaviour
     private IEnumerator ApplyBackgroundHealthIndicator()
     {
         var cameras = Camera.main.GetComponentsInChildren<Camera>();
-        var t = Time.time;
+        var t = Time.time;        
         while(true)
-        {
-            if(GameRunning)
+        {                        
+            foreach (var c in cameras)
             {
-                var color = (1 - Player.Stats.Lifes * 1f / PlayerStats.MaxLifes) / 3 * Mathf.Sin((Time.time - t) * 2);
-                foreach (var c in cameras)
-                {
-                    c.backgroundColor = new Color(color, 0, 0);
-                }
-            }            
+                var color = (1 - Player.Stats.Lifes * 1f / PlayerStats.MaxLifes) / 3 * Mathf.Sin((Time.time - t) * 2);                
+                c.backgroundColor = new Color(GameRunning ? color : 0f, 0, 0);
+            }
             yield return null;
         }        
     }

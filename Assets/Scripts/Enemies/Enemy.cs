@@ -333,6 +333,8 @@ public abstract class Enemy : MonoBehaviour
         movingPattern = MovingPattern.Frightened;
         Speed = 15;
         material = frightenedMaterial;
+        targetNode = currentNode;
+        targetPosition = targetNode.transform.position;
         Invoke("ChangeIsFrightened", FrightenedTimer);
     }
     void OnTriggerEnter(Collider col)

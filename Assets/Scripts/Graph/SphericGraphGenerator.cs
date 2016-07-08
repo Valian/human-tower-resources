@@ -30,11 +30,11 @@ public class SphericGraphGenerator : IGraphGenerator
                 sphericGraphProperties.RandomizationPercentage, partSize);
             nodes.AddRange(currentNodesFloor);
 
-            edgesList.AddRange(GraphGeneratorHelper.GetEdgesOnFloor(currentNodesFloor, nodes));
+            edgesList.AddRange(GraphGeneratorHelper.GetEdgesInCircle(currentNodesFloor, nodes));
 
             if (floorNo > 0)
             {
-                edgesList.AddRange(GraphGeneratorHelper.GetEdgesBetweenTwoFloors(lastNodesFloor, currentNodesFloor,
+                edgesList.AddRange(GraphGeneratorHelper.GetEdgesBetweenTwoSetsAllToAll(lastNodesFloor, currentNodesFloor,
                     nodes, sphericGraphProperties.EdgesProbability, 2 * radiusPart));
             }
         }

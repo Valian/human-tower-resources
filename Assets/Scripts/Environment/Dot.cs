@@ -56,6 +56,7 @@ public class Dot : ScoreBall
     {
         if (col.tag == "Player")
         {
+            AudioManager.Instance.EatingSource.Play();
             Collect();
         }
     }
