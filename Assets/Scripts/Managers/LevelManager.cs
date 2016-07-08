@@ -22,7 +22,7 @@ public static class LevelManager
 
     public static LevelDefinition GetLevelDefinition(int levelNo)
     {
-        if (levelNo < 1 || levelNo >= MaxLevelNo)
+        if (levelNo < 1 || levelNo > MaxLevelNo)
         {
             levelNo = 1;
         }

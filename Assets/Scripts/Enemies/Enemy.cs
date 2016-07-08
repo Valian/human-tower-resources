@@ -87,7 +87,6 @@ public abstract class Enemy : MonoBehaviour
 
     public void SetPosition(Node node)
     {
-        Debug.Log("Set position");
         if (node == null)
         {
             Debug.Log("Set position - null");
@@ -183,7 +182,6 @@ public abstract class Enemy : MonoBehaviour
     }
     void SetNewTarget()
     {
-        Debug.Log("Changing Target");
         if (movingPattern == MovingPattern.Chase)
         {
             ChaseMove();
