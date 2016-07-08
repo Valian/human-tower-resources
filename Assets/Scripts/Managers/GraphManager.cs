@@ -7,7 +7,8 @@ public enum GraphType
     Conic,
     Cubic,
     Random,
-    Spheric
+    Spheric,
+    Spiral
 }
 
 public class GraphManager : MonoBehaviour
@@ -38,13 +39,20 @@ public class GraphManager : MonoBehaviour
     [Range(0f, 1f)]
     public float SphereEdgesProbability;
     public float SphereRadius;
-    
+
+    public float SpiralHeight;
+    public float SpiralRadius;
+    public int SpiralFloorCount;
+    [Range(0f, 1f)]
+    public float SpiralEdgesProbability;
+
     private Edge[,] connections;
 
     private readonly ConicGraphGenerator _conicGraphGenerator = new ConicGraphGenerator();
     private readonly CubicGraphGenerator _cubicGraphGenerator = new CubicGraphGenerator();
     private readonly RandomGraphGenerator _randomGraphGenerator = new RandomGraphGenerator();
     private readonly SphericGraphGenerator _sphericGraphGenerator = new SphericGraphGenerator();
+    private readonly SpiralGraphGenerator _spiralGraphGenerator = new SpiralGraphGenerator();
 
     public void Generate(GraphType graphType, IGraphProperties properties = null)
     {
@@ -104,6 +112,21 @@ public class GraphManager : MonoBehaviour
                 nodesLocations = GenerateNodeSphericLocations(sphericGraphProperties, out edges);
                 break;
             }
+            case GraphType.Spiral:
+            {
+                SpiralGraphProperties spiralGraphProperties = (SpiralGraphProperties) properties ??
+                                                            new SpiralGraphProperties
+                                                            {
+                                                                Location = transform.position,
+                                                                RandomizationPercentage = RandomizationPercentage,
+                                                                Height = SpiralHeight,
+                                                                FloorsCount = SpiralFloorCount,
+                                                                BaseRadius = SpiralRadius,
+                                                                EdgesProbability = SpiralEdgesProbability
+                                                            };
+                nodesLocations = GenerateNodeSpiralLocations(spiralGraphProperties, out edges);
+                break;
+            }
         }
 
         InitializeNodes(nodesLocations);
@@ -155,6 +178,20 @@ public class GraphManager : MonoBehaviour
         int nodesCount = sphericGraphProperties.FloorsNodesCounts.Sum(a => a);
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = _sphericGraphGenerator.GenerateGraph(sphericGraphProperties, out edges);
+        return nodesLocations;
+    }
+
+    public Vector3[] GenerateNodeSpiralLocations(SpiralGraphProperties spiralGraphProperties, out int[][] edges)
+    {
+        if (spiralGraphProperties.FloorsNodesCounts == null)
+        {
+            int[] floorNodesCounts = GraphGeneratorHelper.GenerateFloorNodesCounts(spiralGraphProperties.FloorsCount, -1,
+                spiralGraphProperties.FloorsCount);
+            spiralGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        }
+        int nodesCount = spiralGraphProperties.FloorsNodesCounts.Sum(a => a);
+        connections = new Edge[nodesCount, nodesCount];
+        Vector3[] nodesLocations = _spiralGraphGenerator.GenerateGraph(spiralGraphProperties, out edges);
         return nodesLocations;
     }
 
