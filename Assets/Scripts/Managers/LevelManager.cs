@@ -7,11 +7,11 @@ public static class LevelManager
 
     public class LevelDefinition
     {
-        public GraphType        GraphType { get; set; }
+        public GraphType GraphType { get; set; }
         public IGraphProperties GraphSettings { get; set; }
-        public int              EnemiesCount { get; set; }
-		public int[][] 			PowerDotLocations { get; set; }
-        public int              PlayerRespawnNodeIndex { get; set; }
+        public int EnemiesCount { get; set; }
+        public int[][] PowerDotLocations { get; set; }
+        public int PlayerRespawnNodeIndex { get; set; }
 
         public LevelDefinition()
         {
@@ -81,9 +81,9 @@ public static class LevelManager
                 BaseRadius = 100,
                 FloorsCount = 2,
                 Height = 200,
-                FloorsNodesCounts = new[] {3, 1}
+                FloorsNodesCounts = new[] { 3, 1 }
             },
-            EnemiesCount = 1
+            EnemiesCount = 1,
             PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition conic1x3x2 = new LevelDefinition
@@ -96,7 +96,7 @@ public static class LevelManager
                 BaseRadius = 200,
                 FloorsCount = 3,
                 Height = 400,
-                FloorsNodesCounts = new[] {2, 3, 1}
+                FloorsNodesCounts = new[] { 2, 3, 1 }
             },
             EnemiesCount = 4,
             PowerDotLocations = new[] { new[] { 0, 1 } }
@@ -112,7 +112,7 @@ public static class LevelManager
                 FloorsCount = 3,
                 Height = 400,
                 EdgesProbability = 0.2f,
-                FloorsNodesCounts = new [] {10, 5, 1}
+                FloorsNodesCounts = new[] { 10, 5, 1 }
             },
             EnemiesCount = 4,
             PowerDotLocations = new[] { new[] { 0, 1 } }
