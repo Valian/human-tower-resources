@@ -36,6 +36,7 @@ public abstract class Enemy : MonoBehaviour
     }
     public GhostType ghostType;
     public MovingPattern movingPattern;
+    public Material frightenedMaterial;
 
     protected bool IsMoving;
     protected bool IsInitialized;
@@ -59,6 +60,9 @@ public abstract class Enemy : MonoBehaviour
         }
     } 
     private bool playerMoved = false;
+    private Material assignedMaterial;
+
+
     // Use this for initialization
     void Start()
     {
@@ -67,6 +71,19 @@ public abstract class Enemy : MonoBehaviour
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
         GameManager.Instance.LifeLost += Instance_LifeLost;
         GameManager.Instance.PowerDotCollected += FrightenEnemy;
+        assignedMaterial = material;
+    }
+
+    private Material material
+    {
+        get
+        {
+            return transform.Find("Mesh").GetComponent<MeshRenderer>().material;
+        }
+        set
+        {
+            transform.Find("Mesh").GetComponent<MeshRenderer>().material = value;
+        }
     }
 
     private void Instance_LifeLost()
@@ -307,12 +324,15 @@ public abstract class Enemy : MonoBehaviour
     private void ChangeIsFrightened()
     {
         Speed = 25;
+        material = assignedMaterial;
         IsFrightened = false;
     }
     public void FrightenEnemy()
     {
+        IsFrightened = true;
         movingPattern = MovingPattern.Frightened;
         Speed = 15;
+        material = frightenedMaterial;
         Invoke("ChangeIsFrightened", FrightenedTimer);
     }
     void OnTriggerEnter(Collider col)
