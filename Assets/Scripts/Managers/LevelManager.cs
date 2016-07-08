@@ -35,6 +35,20 @@ public static class LevelManager
             },
             EnemiesCount = 1
         };
+        LevelDefinition square = new LevelDefinition
+        {
+            GraphType = GraphType.Conic,
+            GraphSettings = new ConicGraphProperties
+            {
+                Location = seedPosition,
+                RandomizationPercentage = 1,
+                BaseRadius = 100,
+                FloorsCount = 2,
+                Height = 200,
+                FloorsNodesCounts = new[] { 4, 0 }
+            },
+            EnemiesCount = 0
+        };
         LevelDefinition cube2x2 = new LevelDefinition
         {
             GraphType = GraphType.Cubic,
@@ -78,10 +92,11 @@ public static class LevelManager
 
         _levels = new List<LevelDefinition>
         {
-            cube1x1,
-            cube2x2,
+            square,
             tetrahedron,
-            conic1x3x2
+            cube1x1,
+            conic1x3x2,
+            cube2x2
         };
     }
 
