@@ -10,6 +10,13 @@ public static class LevelManager
         public GraphType        GraphType { get; set; }
         public IGraphProperties GraphSettings { get; set; }
         public int              EnemiesCount { get; set; }
+		public int[][] 			PowerDotLocations { get; set; }
+        public int              PlayerRespawnNodeIndex { get; set; }
+
+        public LevelDefinition()
+        {
+            PlayerRespawnNodeIndex = 0;
+        }
     }
 
     public static LevelDefinition GetLevelDefinition(int levelNo)
@@ -33,7 +40,8 @@ public static class LevelManager
                 RandomizationPercentage = 1,
                 Size = new Vector3(100, 75, 75)
             },
-            EnemiesCount = 2
+            EnemiesCount = 2,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition square = new LevelDefinition
         {
@@ -47,7 +55,8 @@ public static class LevelManager
                 Height = 200,
                 FloorsNodesCounts = new[] { 4, 0 }
             },
-            EnemiesCount = 0
+            EnemiesCount = 0,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition cube2x2 = new LevelDefinition
         {
@@ -59,7 +68,8 @@ public static class LevelManager
                 RandomizationPercentage = 1,
                 Size = new Vector3(200, 150, 150)
             },
-            EnemiesCount = 3
+            EnemiesCount = 3,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition tetrahedron = new LevelDefinition
         {
@@ -73,7 +83,8 @@ public static class LevelManager
                 Height = 200,
                 FloorsNodesCounts = new[] {3, 1}
             },
-            EnemiesCount = 21
+            EnemiesCount = 1,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition conic1x3x2 = new LevelDefinition
         {
@@ -87,7 +98,8 @@ public static class LevelManager
                 Height = 400,
                 FloorsNodesCounts = new[] {2, 3, 1}
             },
-            EnemiesCount = 4
+            EnemiesCount = 4,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition spiral = new LevelDefinition
         {
@@ -102,7 +114,8 @@ public static class LevelManager
                 EdgesProbability = 0.2f,
                 FloorsNodesCounts = new [] {10, 5, 1}
             },
-            EnemiesCount = 4
+            EnemiesCount = 4,
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
 
         _levels = new List<LevelDefinition>

@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
     public void StartLevel(int levelNo)
     {
         var levelDef = LevelManager.GetLevelDefinition(levelNo);
-        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings);
+        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings, levelDef.PowerDotLocations);
         EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount);
         SpawnPlayer();
         GameRunning = true;
@@ -175,9 +175,18 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        var node = graphManager.GetRandomNode();
+        var node = graphManager.Nodes[LevelManager.GetLevelDefinition(CurrentLevel).PlayerRespawnNodeIndex];
         Player.Movement.Spawn(node);
         Player.transform.LookAt(graphManager.GraphCenter());
+        var head = Player.transform.Find("Camera/Head");
+        head.GetComponent<GvrHead>().trackRotation = false;
+        head.localRotation = Quaternion.identity;
+        head.GetComponent<GvrHead>().trackRotation = true;
+        //// DEBUG
+        //var debugthing = Instantiate(graphManager.NodeObjectPrefab);
+        //debugthing.GetComponent<MeshRenderer>().material.color = Color.red;
+        //debugthing.transform.position = graphManager.GraphCenter();
+        //// DEBUG
     }
 
     private void OnBallSpawned(ScoreBall ball)

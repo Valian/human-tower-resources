@@ -69,7 +69,7 @@ public class GraphManager : MonoBehaviour
         // DEBUG
     }
 
-    public void Generate(GraphType graphType, IGraphProperties properties = null)
+    public void Generate(GraphType graphType, IGraphProperties properties = null, int[][] powerDotLocations = null)
     {
         int[][] edges = null;
         Vector3[] nodesLocations = null;
@@ -145,7 +145,7 @@ public class GraphManager : MonoBehaviour
         }
 
         InitializeNodes(nodesLocations);
-        InitializeEdges(this.Nodes, edges);
+        InitializeEdges(this.Nodes, edges, powerDotLocations);
     }
 
     public void Generate()
@@ -259,13 +259,15 @@ public class GraphManager : MonoBehaviour
         this.Nodes = nodes;
     }
 
-    private void InitializeEdges(Node[] nodes, int[][] edges)
+    private void InitializeEdges(Node[] nodes, int[][] edges, int[][] powerDotLocations)
     {
         foreach (int[] edge in edges)
         {
             int from = edge[0];
             int to = edge[1];
-            InstantiateEdge(nodes[from], nodes[to]);
+            bool hasPowerDot = powerDotLocations != null &&
+                               powerDotLocations.FirstOrDefault(d => d[0] == from && d[1] == to) != null;
+            InstantiateEdge(nodes[from], nodes[to], hasPowerDot);
         }
     }
 
@@ -277,11 +279,11 @@ public class GraphManager : MonoBehaviour
         return node;
     }
 
-    private Edge InstantiateEdge(Node from, Node to)
+    private Edge InstantiateEdge(Node from, Node to, bool hasPowerDot = false)
     {
         Edge edge = Instantiate(EdgeNodePrefab);
         edge.transform.parent = transform;
-        edge.InitEdge(from, to);
+        edge.InitEdge(from, to, hasPowerDot);
         connections[from.NodeId, to.NodeId] = connections[to.NodeId, from.NodeId] = edge;
         return edge;
     }

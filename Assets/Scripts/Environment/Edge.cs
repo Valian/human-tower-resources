@@ -3,7 +3,7 @@
 
 public class Edge : MonoBehaviour
 {
-    public void InitEdge(Node from, Node to)
+    public void InitEdge(Node from, Node to, bool hasPowerDot = false)
     {
         transform.position = (from.transform.position + to.transform.position) / 2;
         InitLine(from.transform.position, to.transform.position);
