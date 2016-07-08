@@ -53,15 +53,24 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // DEBUG
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("Collecting a power dot");
             PowerDotCollected();
         }
         if (Input.GetKeyDown(KeyCode.Escape))
-            Application.Quit();
-        // DEBUG
+        {
+            if (!GuiManager.Instance.IsMenuOn)
+            {
+                EndGame(false);
+                GuiManager.Instance.ShowMenu();
+            }
+            else
+            {
+                Application.Quit();
+            }
+
+        }
     }
 
     public void StartGame()
