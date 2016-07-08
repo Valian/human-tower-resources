@@ -40,7 +40,7 @@ public abstract class Enemy : MonoBehaviour
     protected bool IsMoving;
     protected bool IsInitialized;
     protected bool IsFrightened;
-    //private bool HasRoute;
+    private bool HasRoute;
     protected Node currentNode;
     protected Node targetNode;
     protected Edge movingOnEdge;
@@ -80,7 +80,7 @@ public abstract class Enemy : MonoBehaviour
         targetNode = null;
         transform.position = node.transform.position;
         IsMoving = false;
-        //HasRoute = false;
+        HasRoute = false;
     }
     void Init()
     {
@@ -90,7 +90,7 @@ public abstract class Enemy : MonoBehaviour
         gameObject.transform.position = currentNode.transform.position;
         IsMoving = false;
         IsFrightened = false;
-        //HasRoute = false;
+        HasRoute = false;
         SearchRadius = 117; //tested and seems fine
         ClideRange = 200;
         ChaseTimer = 10;
@@ -120,7 +120,7 @@ public abstract class Enemy : MonoBehaviour
         }
         else
         {
-            if(transform.position != player.transform.position) SetNewTarget();
+            if(transform.position != player.transform.position && !HasRoute) SetNewTarget();
         }
         
     }
@@ -138,7 +138,7 @@ public abstract class Enemy : MonoBehaviour
         {
             FrightendMove();
         }
-        //HasRoute = true;
+        if(targetNode != null)HasRoute = true;
 
     }
     protected abstract void ChaseMove();
