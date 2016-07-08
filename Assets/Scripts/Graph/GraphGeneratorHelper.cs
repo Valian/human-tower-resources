@@ -98,8 +98,23 @@ public static class GraphGeneratorHelper
                 });
             }
         }
+        if (floor.Length == 2)
+        {
+            edges.Add(new[] {nodes.IndexOf(floor[0]), nodes.IndexOf(floor[1])});
+        }
 
         return edges;
+    }
+
+    public static int[] GenerateFloorNodesCounts(int start, int step, int floorCount)
+    {
+        int[] floorNodesCounts = new int[floorCount];
+        for (int i = 0; i < floorCount; i++)
+        {
+            floorNodesCounts[i] = start;
+            start += step;
+        }
+        return floorNodesCounts;
     }
 
     private static int GetRandomSign()

@@ -117,10 +117,13 @@ public class GraphManager : MonoBehaviour
 
     public Vector3[] GenerateNodeConicLocations(ConicGraphProperties conicGraphProperties, out int[][] edges)
     {
-        int nodesCount;
-        int[] floorNodesCounts = GenerateFloorNodesCounts(conicGraphProperties.FloorsCount, -1,
-            conicGraphProperties.FloorsCount, out nodesCount);
-        conicGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        if (conicGraphProperties.FloorsNodesCounts == null)
+        {
+            int[] floorNodesCounts = GraphGeneratorHelper.GenerateFloorNodesCounts(conicGraphProperties.FloorsCount, -1,
+                conicGraphProperties.FloorsCount);
+            conicGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        }
+        int nodesCount = conicGraphProperties.FloorsNodesCounts.Sum(a => a);
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = _conicGraphGenerator.GenerateGraph(conicGraphProperties, out edges);
         return nodesLocations;
@@ -143,9 +146,13 @@ public class GraphManager : MonoBehaviour
 
     public Vector3[] GenerateNodeSphericLocations(SphericGraphProperties sphericGraphProperties, out int[][] edges)
     {
-        int nodesCount;
-        int[] floorNodesCounts = GenerateFloorNodesCounts(2, 2, sphericGraphProperties.FloorsCount, out nodesCount);
-        sphericGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        if (sphericGraphProperties.FloorsNodesCounts == null)
+        {
+            int[] floorNodesCounts = GraphGeneratorHelper.GenerateFloorNodesCounts(2, 2,
+                sphericGraphProperties.FloorsCount);
+            sphericGraphProperties.FloorsNodesCounts = floorNodesCounts;
+        }
+        int nodesCount = sphericGraphProperties.FloorsNodesCounts.Sum(a => a);
         connections = new Edge[nodesCount, nodesCount];
         Vector3[] nodesLocations = _sphericGraphGenerator.GenerateGraph(sphericGraphProperties, out edges);
         return nodesLocations;
@@ -188,17 +195,6 @@ public class GraphManager : MonoBehaviour
     public Node GetRandomNode()
     {
         return Nodes[Random.Range(0, Nodes.Length - 1)];
-    }
-
-    private int[] GenerateFloorNodesCounts(int start, int step, int floorCount, out int nodesCount)    {
-        int[] floorNodesCounts = new int[floorCount];
-        for (int i = 0; i < floorCount; i++)
-        {
-            floorNodesCounts[i] = start;
-            start += step;
-        }
-        nodesCount = floorNodesCounts.Sum(a => a);
-        return floorNodesCounts;
     }
 
     private void InitializeNodes(Vector3[] nodesLocations)
@@ -247,5 +243,56 @@ public class GraphManager : MonoBehaviour
             conn = connections[to, from];
         }
         return conn;
+    }
+
+    public List<int>[] GetPath(int start)
+    {
+        int len = connections.GetLength(0);
+        int[] dist = new int[len];
+        List<int>[] path = new List<int>[len];
+        List<int> queue = new List<int>();
+
+        for (int i = 0; i<len; i++)
+        {
+            dist[i] = int.MaxValue;
+            queue.Add(i);
+            path[i] = new List<int>();
+        }
+        dist[start] = 0;
+
+        while(queue.Count > 0)
+        {
+            queue.Sort((x, y) => dist[x] - dist[y]);
+            int u = GetNextVertex(queue, dist);
+            for(int v = 0; v < len; v++)
+            {
+                if(connections[u,v] != null)
+                {
+                    if(dist[v] > dist[u] + (connections[u,v] != null ? 1 : 0))
+                    {
+                        dist[v] = dist[u] + (connections[u, v] != null ? 1 : 0);
+                        path[v].Add(u);
+                        queue.Add(v);
+                    }
+                }
+            }
+        }
+        return path;
+    }
+    private int GetNextVertex(List<int> queue, int[] dist)
+    {
+        int min = int.MaxValue;
+        int Vertex = -1;
+
+        foreach (int j in queue)
+        {
+            if (dist[j] <= min)
+            {
+                min = dist[j];
+                Vertex = j;
+            }
+        }
+        queue.Remove(Vertex);
+        return Vertex;
     }
 }
