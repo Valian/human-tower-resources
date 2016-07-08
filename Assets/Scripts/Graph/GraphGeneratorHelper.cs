@@ -80,7 +80,7 @@ public static class GraphGeneratorHelper
             }
         }
 
-        if (!atLeastOne)
+        if (!atLeastOne && floorA.Length > 0 && floorB.Length > 0)
         {
             int randomNodeANo = Random.Next(floorA.Length);
             int randomNodeBNo = Random.Next(floorB.Length);
