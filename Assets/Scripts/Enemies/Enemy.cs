@@ -40,6 +40,7 @@ public abstract class Enemy : MonoBehaviour
     protected bool IsMoving;
     protected bool IsInitialized;
     protected bool IsFrightened;
+    //private bool HasRoute;
     protected Node currentNode;
     protected Node targetNode;
     protected Edge movingOnEdge;
@@ -64,6 +65,12 @@ public abstract class Enemy : MonoBehaviour
         IsInitialized = false;
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
+        GameManager.Instance.LifeLost += Instance_LifeLost;
+    }
+
+    private void Instance_LifeLost()
+    {
+        SetPosition(targetNode);
     }
 
     public void SetPosition(Node node)
@@ -71,9 +78,9 @@ public abstract class Enemy : MonoBehaviour
         if (node == null) return;
         currentNode = node;
         targetNode = null;
-
         transform.position = node.transform.position;
         IsMoving = false;
+        //HasRoute = false;
     }
     void Init()
     {
@@ -83,6 +90,7 @@ public abstract class Enemy : MonoBehaviour
         gameObject.transform.position = currentNode.transform.position;
         IsMoving = false;
         IsFrightened = false;
+        //HasRoute = false;
         SearchRadius = 117; //tested and seems fine
         ClideRange = 200;
         ChaseTimer = 10;
@@ -130,6 +138,7 @@ public abstract class Enemy : MonoBehaviour
         {
             FrightendMove();
         }
+        //HasRoute = true;
 
     }
     protected abstract void ChaseMove();
@@ -201,7 +210,7 @@ public abstract class Enemy : MonoBehaviour
 
                     targetNode = colObject;
                     targetPosition = colObject.transform.position;
-                    if (targetNode == currentNode)
+                    if (targetNode == currentNode || targetNode == null)
                     {
                         ChaseWithDjikstra();
                     }
@@ -230,7 +239,7 @@ public abstract class Enemy : MonoBehaviour
                 {
                     targetNode = colObject;
                     targetPosition = colObject.transform.position;
-                    if (targetNode == currentNode)
+                    if (targetNode == currentNode || targetNode == null)
                     {
                         ChaseWithDjikstra();
                     }
