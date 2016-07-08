@@ -98,6 +98,10 @@ public static class GraphGeneratorHelper
                 });
             }
         }
+        if (floor.Length == 2)
+        {
+            edges.Add(new[] {nodes.IndexOf(floor[0]), nodes.IndexOf(floor[1])});
+        }
 
         return edges;
     }
