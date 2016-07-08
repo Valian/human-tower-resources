@@ -93,8 +93,10 @@ public abstract class Enemy : MonoBehaviour
 
     public void SetPosition(Node node)
     {
+        Debug.Log("Set position");
         if (node == null)
         {
+            Debug.Log("Set position - null");
             return;
         }
         currentNode = node;
@@ -246,6 +248,7 @@ public abstract class Enemy : MonoBehaviour
     protected void ChaseBlinky()
     {
         ChaseWithDjikstra();
+        IsMoving = true;
         return;
         Node playerNode = GameManager.Instance.Player.Movement.CurrentNode ?? GameManager.Instance.Player.Movement.TargetNode;
         if (GameManager.Instance.GraphManagerInstance.IsConnected(playerNode.NodeId, currentNode.NodeId))
@@ -279,6 +282,7 @@ public abstract class Enemy : MonoBehaviour
     protected void ChaseWithVector(Vector3 vec)
     {
         ChaseWithDjikstra();
+        IsMoving = true;
         return;
         if (GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
         {
