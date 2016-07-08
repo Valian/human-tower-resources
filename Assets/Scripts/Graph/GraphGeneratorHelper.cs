@@ -106,6 +106,17 @@ public static class GraphGeneratorHelper
         return edges;
     }
 
+    public static int[] GenerateFloorNodesCounts(int start, int step, int floorCount)
+    {
+        int[] floorNodesCounts = new int[floorCount];
+        for (int i = 0; i < floorCount; i++)
+        {
+            floorNodesCounts[i] = start;
+            start += step;
+        }
+        return floorNodesCounts;
+    }
+
     private static int GetRandomSign()
     {
         int sign = Random.Next(-1, 1);
