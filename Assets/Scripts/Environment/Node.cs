@@ -13,7 +13,7 @@ public class Node : MonoBehaviour {
 
     private Vector3 initialScale;
 
-    IEnumerator coroutine = null;
+    IEnumerator hideCoroutine = null;
 
     void Awake()
     {
@@ -39,22 +39,26 @@ public class Node : MonoBehaviour {
         }
     }    
 
-    public void Hide()
+    public void Hide(bool instant = false)
     {
-        if(coroutine == null)
+        if(instant)
         {
-            coroutine = HideCoroutine();
-            StartCoroutine(coroutine);
+            transform.localScale = new Vector3(0, 0, 0);
         }
+        else if(hideCoroutine == null)
+        {
+            hideCoroutine = HideCoroutine();
+            StartCoroutine(hideCoroutine);
+        }  
     }
 
     public void Show()
     {
         transform.localScale = initialScale;
-        if(coroutine != null)
+        if(hideCoroutine != null)
         {
-            StopCoroutine(coroutine);
-            coroutine = null;
+            StopCoroutine(hideCoroutine);
+            hideCoroutine = null;
         }
     }
 

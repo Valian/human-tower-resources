@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 
@@ -18,7 +19,10 @@ public class PlayerLinearMovement : MonoBehaviour {
     public event PlayerMovement PlayerTargetReached;
     public event PlayerMovement PlayerNextTargetChanged;
 
+
+    private bool canMove = true;
     private bool _firstMoveDone = false;
+
     void Start()
     {
         Node.NodeTriggered += MoveTo;
@@ -39,6 +43,11 @@ public class PlayerLinearMovement : MonoBehaviour {
         CallPlayerTargetChanged();
         CallPlayerTargetReached();
         transform.position = node.transform.position;
+    }
+
+    public void AllowMovement(bool allow)
+    {
+        canMove = allow;
     }
 
     public void MoveTo(Node target)
@@ -66,7 +75,7 @@ public class PlayerLinearMovement : MonoBehaviour {
 	
 	void Update ()
     {
-        if (IsMoving)
+        if (IsMoving && canMove)
         {
             var diff = TargetNode.transform.position - transform.position;
             if (diff.magnitude <= this.Speed * Time.deltaTime)
