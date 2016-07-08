@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
     public void StartLevel(int levelNo)
     {
         var levelDef = LevelManager.GetLevelDefinition(levelNo);
-        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings);
+        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings, levelDef.PowerDotLocations);
         EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount);
         SpawnPlayer();
         GameRunning = true;
