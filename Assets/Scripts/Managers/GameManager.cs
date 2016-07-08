@@ -79,6 +79,12 @@ public class GameManager : MonoBehaviour
         LevelStarted();
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+    }
+
     public void EndGame(bool success)
     {
         graphManager.DestroyGraph();
