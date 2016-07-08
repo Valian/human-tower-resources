@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        var node = graphManager.GetRandomNode();
+        var node = graphManager.Nodes[LevelManager.GetLevelDefinition(CurrentLevel).PlayerRespawnNodeIndex];
         Player.Movement.Spawn(node);
     }
 
