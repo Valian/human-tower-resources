@@ -39,7 +39,7 @@ public abstract class Enemy : MonoBehaviour
     public Material frightenedMaterial;
 
     protected bool IsMoving;
-    protected bool IsInitialized;
+    //protected bool IsInitialized;
     protected bool IsFrightened;
     private bool HasRoute;
     protected Node currentNode;
@@ -66,7 +66,7 @@ public abstract class Enemy : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        IsInitialized = false;
+        //IsInitialized = false;
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
         GameManager.Instance.LifeLost += Instance_LifeLost;
@@ -93,19 +93,28 @@ public abstract class Enemy : MonoBehaviour
 
     public void SetPosition(Node node)
     {
-        if (node == null) return;
+        if (node == null)
+        {
+            return;
+        }
         currentNode = node;
         targetNode = null;
         transform.position = node.transform.position;
         IsMoving = false;
         HasRoute = false;
     }
-    void Init()
+    public void Init(Node startingNode)
+    //public void Init()
     {
         //MOCK - starting conditions (set starting node and position)
-        List<Node> targets = GameObject.FindObjectsOfType<Node>().ToList();
-        currentNode = targets[Random.Range(0, targets.Count)];
-        gameObject.transform.position = currentNode.transform.position;
+        //List<Node> targets = GameObject.FindObjectsOfType<Node>().ToList();
+        //currentNode = targets[Random.Range(0, targets.Count)];
+        //gameObject.transform.position = currentNode.transform.position;
+        //transform.position = GetGraphCenter();
+        //currentNode = ChoseRandomNode();
+        currentNode = startingNode;
+        transform.position = currentNode.transform.position;
+
         IsMoving = false;
         IsFrightened = false;
         HasRoute = false;
@@ -117,13 +126,37 @@ public abstract class Enemy : MonoBehaviour
         //movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
 
-        IsInitialized = true;
+        //GoToRandomNode();
+        //IsInitialized = true;
+    }
+    //private Vector3 GetGraphCenter()
+    //{
+    //    int len = GameManager.Instance.GraphManagerInstance.Nodes.Length;
+    //    Vector3 result = new Vector3();
+    //    foreach (Node n in GameManager.Instance.GraphManagerInstance.Nodes)
+    //    {
+    //        result += n.transform.position;
+    //    }
+    //    return result / len;
+    //    //return new Vector3(result.x / n, result.y / n, result.z / n);
+    //}
+    private Node ChoseRandomNode()
+    {
+        Node[] nodes = GameManager.Instance.GraphManagerInstance.Nodes;
+        Node playerNode = GameManager.Instance.Player.Movement.CurrentNode;
+        int r = Random.Range(0, nodes.Length - 1);
+        
+        while (nodes.ElementAt(r) == playerNode || GameManager.Instance.GraphManagerInstance.IsConnected(nodes.ElementAt(r).NodeId, playerNode.NodeId))
+        {
+            r = Random.Range(0, GameManager.Instance.GraphManagerInstance.Nodes.Length - 1);
+        }
+        return GameManager.Instance.GraphManagerInstance.Nodes[r];
     }
     // Update is called once per frame
     void Update()
     {
         if (!GameManager.Instance.GameRunning) return;
-        if (!IsInitialized) Init();
+        //if (!IsInitialized) Init();
         if (IsMoving && playerMoved)
         {
             var diff = targetPosition - transform.position;
@@ -131,6 +164,7 @@ public abstract class Enemy : MonoBehaviour
             {
                 this.SetPosition(targetNode);
                 IsMoving = false;
+                HasRoute = false;
             }
             else
             {
@@ -145,6 +179,7 @@ public abstract class Enemy : MonoBehaviour
     }
     void SetNewTarget()
     {
+        Debug.Log("Changing Target");
         if (movingPattern == MovingPattern.Chase)
         {
             ChaseMove();
@@ -210,6 +245,8 @@ public abstract class Enemy : MonoBehaviour
 
     protected void ChaseBlinky()
     {
+        ChaseWithDjikstra();
+        return;
         Node playerNode = GameManager.Instance.Player.Movement.CurrentNode ?? GameManager.Instance.Player.Movement.TargetNode;
         if (GameManager.Instance.GraphManagerInstance.IsConnected(playerNode.NodeId, currentNode.NodeId))
         {
@@ -241,6 +278,8 @@ public abstract class Enemy : MonoBehaviour
 
     protected void ChaseWithVector(Vector3 vec)
     {
+        ChaseWithDjikstra();
+        return;
         if (GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
         {
             targetPosition = GameManager.Instance.Player.transform.position;
@@ -271,10 +310,10 @@ public abstract class Enemy : MonoBehaviour
     {
         GraphManager graphManager = GameManager.Instance.GraphManagerInstance;
         
-        Node playerNode = GameManager.Instance.Player.Movement.CurrentNode != null ? GameManager.Instance.Player.Movement.CurrentNode : GameManager.Instance.Player.Movement.TargetNode;
+        Node playerNode = GameManager.Instance.Player.Movement.CurrentNode ?? GameManager.Instance.Player.Movement.TargetNode;
         if(graphManager.IsConnected(currentNode.NodeId, playerNode.NodeId))
         {
-            targetNode = GameObject.FindObjectsOfType<Node>().ToList().Find(x => x.NodeId == playerNode.NodeId);
+            targetNode = playerNode;
             targetPosition = targetNode.transform.position;
             return;
         }
@@ -326,6 +365,7 @@ public abstract class Enemy : MonoBehaviour
         Speed = 25;
         material = assignedMaterial;
         IsFrightened = false;
+        HasRoute = false;
     }
     public void FrightenEnemy()
     {

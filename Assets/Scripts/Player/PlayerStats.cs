@@ -2,7 +2,7 @@
 
 public class PlayerStats : MonoBehaviour
 {
-    public const int MaxLifes = 3;
+    public const int MaxLifes = 20;
     public int Lifes { get; private set; }
 
     public void ResetStats()

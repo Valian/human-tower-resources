@@ -8,20 +8,20 @@ public class DotLine : MonoBehaviour
 	public Vector3      target;
     public int          DotsCount = 2;
     public GameObject   DotPrefab;
-	public float        speed = 1f;
+    public GameObject   PowerDotPrefab;
+    public float        speed = 1f;
 	public float        scale = 1f;
     
 	private float           _oneOverZigs;	
     private LineRenderer    _lineRenderer;
     private bool            _initialized;
     private Edge            _parent;
-    private List<Dot>       _dots;
+    private List<ScoreBall>       _dots;
 
 	void Start()
-	{
-	}
+	{ }
 
-    public void Init(Vector3 from, Vector3 to, Edge parent)
+    public void Init(Vector3 from, Vector3 to, Edge parent, bool hasPowerDot)
     {
         _oneOverZigs = 1f / (float)DotsCount;
         _lineRenderer = GetComponent<LineRenderer>();
@@ -31,12 +31,12 @@ public class DotLine : MonoBehaviour
         _parent = parent;
         _lineRenderer.SetPosition(0, from);
         _lineRenderer.SetPosition(1, to);
-        SpawnDots();
+        SpawnDots(hasPowerDot);
     }
 
-    private void SpawnDots()
+    private void SpawnDots(bool hasPowerDot)
     {
-        _dots = new List<Dot>(DotsCount);
+        _dots = new List<ScoreBall>(DotsCount);
         var prop = new DotProperties
         {
             Target = target,
@@ -48,8 +48,15 @@ public class DotLine : MonoBehaviour
         };
         for (int i = 0; i < DotsCount; i++)
         {
-            var newDot = Instantiate(DotPrefab).GetComponent<Dot>();
-            newDot.Init(i, prop);
+            ScoreBall newDot = null;
+            if(hasPowerDot && i == DotsCount / 2)
+            {
+                newDot = Instantiate(PowerDotPrefab).GetComponent<PowerDot>();
+            } else
+            {
+                newDot = Instantiate(DotPrefab).GetComponent<Dot>();
+            }
+            ((Dot)newDot).Init(i, prop);
             newDot.transform.parent = transform;
             _dots.Add(newDot);
         }

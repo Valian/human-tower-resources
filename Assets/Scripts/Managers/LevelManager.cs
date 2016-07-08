@@ -7,11 +7,12 @@ public static class LevelManager
 
     public class LevelDefinition
     {
-        public GraphType        GraphType { get; set; }
+        public GraphType GraphType { get; set; }
         public IGraphProperties GraphSettings { get; set; }
-        public int              EnemiesCount { get; set; }
-		public int[][] 			PowerDotLocations { get; set; }
-        public int              PlayerRespawnNodeIndex { get; set; }
+        public int EnemiesCount { get; set; }
+        public int[][] PowerDotLocations { get; set; }
+        public int PlayerRespawnNodeIndex { get; set; }
+        public int[] EnemiesRespawnNodeIndexes { get; set; }
 
         public LevelDefinition()
         {
@@ -41,7 +42,8 @@ public static class LevelManager
                 Size = new Vector3(100, 75, 75)
             },
             EnemiesCount = 2,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new [] { 3, 4 }
         };
         LevelDefinition square = new LevelDefinition
         {
@@ -69,7 +71,8 @@ public static class LevelManager
                 Size = new Vector3(200, 150, 150)
             },
             EnemiesCount = 3,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new [] { 10, 21, 24 }
         };
         LevelDefinition tetrahedron = new LevelDefinition
         {
@@ -81,10 +84,11 @@ public static class LevelManager
                 BaseRadius = 100,
                 FloorsCount = 2,
                 Height = 200,
-                FloorsNodesCounts = new[] {3, 1}
+                FloorsNodesCounts = new[] { 3, 1 }
             },
             EnemiesCount = 1,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new [] {2}
         };
         LevelDefinition conic1x3x2 = new LevelDefinition
         {
@@ -96,10 +100,11 @@ public static class LevelManager
                 BaseRadius = 200,
                 FloorsCount = 3,
                 Height = 400,
-                FloorsNodesCounts = new[] {2, 3, 1}
+                FloorsNodesCounts = new[] { 2, 3, 1 }
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new [] { 2, 3, 4, 5 }
         };
         LevelDefinition spiral = new LevelDefinition
         {
@@ -112,15 +117,16 @@ public static class LevelManager
                 FloorsCount = 3,
                 Height = 400,
                 EdgesProbability = 0.2f,
-                FloorsNodesCounts = new [] {10, 5, 1}
+                FloorsNodesCounts = new[] { 10, 5, 1 }
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new [] {10,13,15, 6}
         };
 
         _levels = new List<LevelDefinition>
         {
-            square,
+            //square,
             tetrahedron,
             cube1x1,
             conic1x3x2,
