@@ -48,6 +48,7 @@ public class GameManager : MonoBehaviour
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
         LevelManager.InitiateLevels(graphManager.transform.position);
         StartCoroutine(ApplyBackgroundHealthIndicator());
+        AudioManager.Instance.TurnOnMusic();
     }
 
     void Update()

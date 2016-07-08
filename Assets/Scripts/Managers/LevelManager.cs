@@ -33,7 +33,7 @@ public static class LevelManager
                 RandomizationPercentage = 1,
                 Size = new Vector3(100, 75, 75)
             },
-            EnemiesCount = 1
+            EnemiesCount = 2
         };
         LevelDefinition square = new LevelDefinition
         {
@@ -73,7 +73,7 @@ public static class LevelManager
                 Height = 200,
                 FloorsNodesCounts = new[] {3, 1}
             },
-            EnemiesCount = 2
+            EnemiesCount = 21
         };
         LevelDefinition conic1x3x2 = new LevelDefinition
         {
@@ -107,8 +107,8 @@ public static class LevelManager
 
         _levels = new List<LevelDefinition>
         {
-            square,
-            tetrahedron,
+            //square,
+            //tetrahedron,
             cube1x1,
             conic1x3x2,
             cube2x2,
