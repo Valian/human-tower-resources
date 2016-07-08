@@ -69,7 +69,6 @@ public abstract class Enemy : MonoBehaviour
         //IsInitialized = false;
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
-        GameManager.Instance.LifeLost += Instance_LifeLost;
         GameManager.Instance.PowerDotCollected += FrightenEnemy;
         assignedMaterial = material;
     }
@@ -84,11 +83,6 @@ public abstract class Enemy : MonoBehaviour
         {
             transform.Find("Mesh").GetComponent<MeshRenderer>().material = value;
         }
-    }
-
-    private void Instance_LifeLost()
-    {
-        SetPosition(targetNode);
     }
 
     public void SetPosition(Node node)

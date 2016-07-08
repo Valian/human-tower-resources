@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     public event Action         PowerDotCollected = delegate { };
 
     private GraphManager graphManager;
+    private LevelManager.LevelDefinition currentLevelDef;
 
     public static GameManager Instance;
 
@@ -84,6 +85,7 @@ public class GameManager : MonoBehaviour
     public void StartLevel(int levelNo)
     {
         var levelDef = LevelManager.GetLevelDefinition(levelNo);
+        currentLevelDef = levelDef;
         graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings, levelDef.PowerDotLocations);
         EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount, levelDef.EnemiesRespawnNodeIndexes);
         SpawnPlayer();
@@ -111,6 +113,7 @@ public class GameManager : MonoBehaviour
         SetDeathEffects(true);
         yield return WaitRealTime(DeathFreezeTime);
         ClearNodesModifications();
+        EnemiesSpawner.SpawnEnemies(currentLevelDef.EnemiesCount, currentLevelDef.EnemiesRespawnNodeIndexes);
         SpawnPlayer();
         SetDeathEffects(false);
     }
