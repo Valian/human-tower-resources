@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     public EnemySpawner     EnemiesSpawner;
 
     public GraphManager     GraphManagerPrefab;
-    public ScoreManager     ScoreManagerPrefab;
 
     public bool     GameRunning { get; private set; }
     public int      DotsCount { get; private set; }
@@ -24,9 +23,9 @@ public class GameManager : MonoBehaviour
     public event Action         LevelStarted = delegate { };
     public event Action         LevelFinished = delegate { };
     public event Action         LifeLost = delegate { };
+    public event Action         PowerDotCollected = delegate { };
 
     private GraphManager graphManager;
-    private ScoreManager scoreManager;
 
     public static GameManager Instance;
 
@@ -34,9 +33,9 @@ public class GameManager : MonoBehaviour
     {
         ScoreBall.BallSpawned += OnBallSpawned;
         ScoreBall.BallCollected += OnBallCollected;
+        ScoreBall.BallCollected += OnPowerDotCollected;
         
         graphManager = Instantiate<GraphManager>(GraphManagerPrefab);
-        scoreManager = Instantiate<ScoreManager>(ScoreManagerPrefab);
         Instance = this;
     }
 
@@ -46,6 +45,16 @@ public class GameManager : MonoBehaviour
         Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
         LevelManager.InitiateLevels(graphManager.transform.position);       
+    }
+
+    void Update()
+    {
+        // DEBUG
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            PowerDotCollected();
+        }
+        // DEBUG
     }
 
     public void StartGame()
@@ -124,6 +133,13 @@ public class GameManager : MonoBehaviour
         {
             FinishLevel();
         }
+    }
+
+    private void OnPowerDotCollected(ScoreBall ball)
+    {
+        if (!ball.isPowerDot)
+            return;
+        PowerDotCollected();
     }
 
     private void OnPlayerTargetReached(PlayerLinearMovement player)

@@ -66,6 +66,7 @@ public abstract class Enemy : MonoBehaviour
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
         GameManager.Instance.LifeLost += Instance_LifeLost;
+        GameManager.Instance.PowerDotCollected += FrightenEnemy;
     }
 
     private void Instance_LifeLost()
