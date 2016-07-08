@@ -177,6 +177,7 @@ public class GameManager : MonoBehaviour
     {
         var node = graphManager.GetRandomNode();
         Player.Movement.Spawn(node);
+        Player.transform.LookAt(graphManager.GraphCenter());
     }
 
     private void OnBallSpawned(ScoreBall ball)

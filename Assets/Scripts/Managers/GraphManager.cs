@@ -54,6 +54,21 @@ public class GraphManager : MonoBehaviour
     private readonly SphericGraphGenerator _sphericGraphGenerator = new SphericGraphGenerator();
     private readonly SpiralGraphGenerator _spiralGraphGenerator = new SpiralGraphGenerator();
 
+    public void Update()
+    {
+        // DEBUG
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            var c = GraphCenter();
+            Debug.Log(string.Format(
+                "Graph node count: {0}\n, center: [{1}, {2}, {3}]",
+                Nodes.Length,
+                c.x, c.y, c.z
+                ));
+        }
+        // DEBUG
+    }
+
     public void Generate(GraphType graphType, IGraphProperties properties = null)
     {
         int[][] edges = null;
@@ -331,5 +346,15 @@ public class GraphManager : MonoBehaviour
         }
         queue.Remove(Vertex);
         return Vertex;
+    }
+
+    public Vector3 GraphCenter()
+    {
+        if(Nodes == null || Nodes.Length == 0)
+        {
+            throw new System.InvalidOperationException(
+                "Graph does not have any nodes to compute the center");
+        }
+        return Nodes.Select(x => x.transform.position).Aggregate((a, b) => a + b) / Nodes.Length;
     }
 }
