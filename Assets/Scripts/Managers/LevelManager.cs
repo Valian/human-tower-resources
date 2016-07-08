@@ -126,7 +126,7 @@ public static class LevelManager
 
         _levels = new List<LevelDefinition>
         {
-            //square,
+            square,
             tetrahedron,
             cube1x1,
             conic1x3x2,
