@@ -140,7 +140,7 @@ public class GameManager : MonoBehaviour
             foreach (var c in cameras)
             {
                 var color = (1 - Player.Stats.Lifes * 1f / PlayerStats.MaxLifes) / 3 * Mathf.Sin((Time.time - t) * 2);                
-                c.backgroundColor = new Color(GameRunning ? color : 0f, color, 0, 0);
+                c.backgroundColor = new Color(GameRunning ? color : 0f, 0, 0);
             }
             yield return null;
         }        
