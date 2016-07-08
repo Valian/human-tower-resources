@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
             Debug.Log("Collecting a power dot");
             PowerDotCollected();
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
         // DEBUG
     }
 
@@ -78,12 +80,6 @@ public class GameManager : MonoBehaviour
         SpawnPlayer();
         GameRunning = true;
         LevelStarted();
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Application.Quit();
     }
 
     public void EndGame(bool success)
