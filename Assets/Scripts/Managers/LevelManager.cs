@@ -23,69 +23,80 @@ public static class LevelManager
 
     public static void InitiateLevels(Vector3 seedPosition)
     {
-        _levels = new List<LevelDefinition> {
-            new LevelDefinition
+        LevelDefinition cube1x1 = new LevelDefinition
+        {
+            GraphType = GraphType.Cubic,
+            GraphSettings = new CubicGraphProperties
             {
-                GraphType = GraphType.Cubic,
-                GraphSettings = new CubicGraphProperties
-                {
-                    Location = seedPosition,
-                    PartsCount = 2,
-                    RandomizationPercentage = 1,
-                    Size = new Vector3(100, 75, 75)
-                },
-                EnemiesCount = 1
+                Location = seedPosition,
+                PartsCount = 2,
+                RandomizationPercentage = 1,
+                Size = new Vector3(100, 75, 75)
             },
-            new LevelDefinition
+            EnemiesCount = 1
+        };
+        LevelDefinition square = new LevelDefinition
+        {
+            GraphType = GraphType.Conic,
+            GraphSettings = new ConicGraphProperties
             {
-                GraphType = GraphType.Cubic,
-                GraphSettings = new CubicGraphProperties
-                {
-                    Location = seedPosition,
-                    PartsCount = 3,
-                    RandomizationPercentage = 1,
-                    Size = new Vector3(200, 150, 150)
-                },
-                EnemiesCount = 3
+                Location = seedPosition,
+                RandomizationPercentage = 1,
+                BaseRadius = 100,
+                FloorsCount = 2,
+                Height = 200,
+                FloorsNodesCounts = new[] { 4, 0 }
             },
-            new LevelDefinition
+            EnemiesCount = 0
+        };
+        LevelDefinition cube2x2 = new LevelDefinition
+        {
+            GraphType = GraphType.Cubic,
+            GraphSettings = new CubicGraphProperties
             {
-                GraphType = GraphType.Conic,
-                GraphSettings = new ConicGraphProperties
-                {
-                    Location = seedPosition,
-                    RandomizationPercentage = 1,
-                    BaseRadius = 100,
-                    FloorsCount = 2,
-                    Height = 200
-                },
-                EnemiesCount = 2
+                Location = seedPosition,
+                PartsCount = 3,
+                RandomizationPercentage = 1,
+                Size = new Vector3(200, 150, 150)
             },
-            new LevelDefinition
+            EnemiesCount = 3
+        };
+        LevelDefinition tetrahedron = new LevelDefinition
+        {
+            GraphType = GraphType.Conic,
+            GraphSettings = new ConicGraphProperties
             {
-                GraphType = GraphType.Conic,
-                GraphSettings = new ConicGraphProperties
-                {
-                    Location = seedPosition,
-                    RandomizationPercentage = 1,
-                    BaseRadius = 200,
-                    FloorsCount = 5,
-                    Height = 400
-                },
-                EnemiesCount = 4
+                Location = seedPosition,
+                RandomizationPercentage = 1,
+                BaseRadius = 100,
+                FloorsCount = 2,
+                Height = 200,
+                FloorsNodesCounts = new[] {3, 1}
             },
-            new LevelDefinition
+            EnemiesCount = 2
+        };
+        LevelDefinition conic1x3x2 = new LevelDefinition
+        {
+            GraphType = GraphType.Conic,
+            GraphSettings = new ConicGraphProperties
             {
-                GraphType = GraphType.Random,
-                GraphSettings = new RandomGraphProperties
-                {
-                    Location = seedPosition,
-                    EdgesProbability = 0.8f,
-                    NodesCount = 5,
-                    Size = new Vector3(400, 400, 400)
-                },
-                EnemiesCount = 5
-            }
+                Location = seedPosition,
+                RandomizationPercentage = 1,
+                BaseRadius = 200,
+                FloorsCount = 3,
+                Height = 400,
+                FloorsNodesCounts = new[] {2, 3, 1}
+            },
+            EnemiesCount = 4
+        };
+
+        _levels = new List<LevelDefinition>
+        {
+            square,
+            tetrahedron,
+            cube1x1,
+            conic1x3x2,
+            cube2x2
         };
     }
 

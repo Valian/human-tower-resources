@@ -4,9 +4,11 @@ using System.Linq;
 
 using Object = UnityEngine.Object;
 using System.Collections;
+using UnityStandardAssets.ImageEffects;
 
 public class GameManager : MonoBehaviour
 {
+    public float DeathFreezeTime = 3f;
     public PlayerBase       Player;
     public EnemySpawner     EnemiesSpawner;
 
@@ -44,7 +46,8 @@ public class GameManager : MonoBehaviour
         Player.Movement.PlayerTargetReached += OnPlayerTargetReached;
         Player.Movement.PlayerTargetChanged += OnPlayerTargetChanged;
         Player.Movement.PlayerNextTargetChanged += OnPlayerNextTargetChanged;
-        LevelManager.InitiateLevels(graphManager.transform.position);       
+        LevelManager.InitiateLevels(graphManager.transform.position);
+        StartCoroutine(ApplyBackgroundHealthIndicator());
     }
 
     void Update()
@@ -76,7 +79,8 @@ public class GameManager : MonoBehaviour
     }
 
     public void EndGame(bool success)
-    {
+    {   
+
         graphManager.DestroyGraph();
         EnemiesSpawner.ClearEnemies();
         DotsCount = 0;
@@ -85,10 +89,37 @@ public class GameManager : MonoBehaviour
     }
 
     public void LooseLife()
+    {               
+        LifeLost();
+        StartCoroutine(LoseLifeCoroutine());
+    }
+
+    private IEnumerator LoseLifeCoroutine()
     {
+        SetDeathEffects(true);
+        yield return WaitRealTime(DeathFreezeTime);
         ClearNodesModifications();
         SpawnPlayer();
-        LifeLost();
+        SetDeathEffects(false);
+    }
+
+    private IEnumerator WaitRealTime(float time)
+    {
+        var t = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < t + time)
+        {
+            yield return null;
+        }
+    }
+
+    private void SetDeathEffects(bool dead)
+    {
+        var effects = FindObjectsOfType<Grayscale>();
+        foreach (var e in effects)
+        {
+            e.enabled = dead;
+        }
+        Time.timeScale = dead ? 0f : 1f;
     }
 
     private void ClearNodesModifications()
@@ -98,6 +129,24 @@ public class GameManager : MonoBehaviour
             n.Show();
             ChangeNodeColor(n, Color.white);
         }
+    }
+
+    private IEnumerator ApplyBackgroundHealthIndicator()
+    {
+        var cameras = Camera.main.GetComponentsInChildren<Camera>();
+        var t = Time.time;
+        while(true)
+        {
+            if(GameRunning)
+            {
+                var color = (1 - Player.Stats.Lifes * 1f / PlayerStats.MaxLifes) / 3 * Mathf.Sin((Time.time - t) * 2);
+                foreach (var c in cameras)
+                {
+                    c.backgroundColor = new Color(color, 0, 0);
+                }
+            }            
+            yield return null;
+        }        
     }
 
     private void FinishLevel()
@@ -145,6 +194,7 @@ public class GameManager : MonoBehaviour
     private void OnPlayerTargetReached(PlayerLinearMovement player)
     {
         ChangeNeightboursColors(player.CurrentNode, Color.green);
+        player.CurrentNode.Hide(true);
     }
 
     private void OnPlayerNextTargetChanged(PlayerLinearMovement player)

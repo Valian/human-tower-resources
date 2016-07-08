@@ -96,6 +96,7 @@ public abstract class Enemy : MonoBehaviour
         ClideRange = 200;
         ChaseTimer = 10;
         FrightenedTimer = 15;
+        Speed = 25;
         //movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
 
@@ -305,11 +306,13 @@ public abstract class Enemy : MonoBehaviour
     }
     private void ChangeIsFrightened()
     {
+        Speed = 25;
         IsFrightened = false;
     }
     public void FrightenEnemy()
     {
         movingPattern = MovingPattern.Frightened;
+        Speed = 15;
         Invoke("ChangeIsFrightened", FrightenedTimer);
     }
     void OnTriggerEnter(Collider col)
