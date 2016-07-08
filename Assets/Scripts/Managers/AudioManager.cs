@@ -22,6 +22,12 @@ public class AudioManager : MonoBehaviour
         GameManager.Instance.LevelFinished += Instance_LevelFinished;
         GameManager.Instance.LifeLost += Instance_LifeLost;
         GameManager.Instance.GameEnded += Instance_GameEnded;
+        ScoreBall.BallCollected += ScoreBall_BallCollected;
+    }
+
+    private void ScoreBall_BallCollected(ScoreBall ball)
+    {
+        EatingSource.Play();
     }
 
     private void Instance_GameEnded(bool obj)
