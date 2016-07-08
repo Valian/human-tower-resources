@@ -61,7 +61,7 @@ public abstract class Enemy : MonoBehaviour
     } 
     private bool playerMoved = false;
     private Material assignedMaterial;
-
+    private 
 
     // Use this for initialization
     void Start()
@@ -70,7 +70,7 @@ public abstract class Enemy : MonoBehaviour
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
         GameManager.Instance.LifeLost += Instance_LifeLost;
-        GameManager.Instance.PowerDotCollected += FrightenEnemy;
+        GameManager.Instance.PowerDotCollected += BecomeFrightened;
         assignedMaterial = material;
     }
 
@@ -157,6 +157,14 @@ public abstract class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // DEBUG
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            GetRekt();
+            Debug.Log(transform.name + " rekt");
+        }
+        // DEBUG
+
         if (!GameManager.Instance.GameRunning) return;
         //if (!IsInitialized) Init();
         if (IsMoving && playerMoved)
@@ -364,14 +372,14 @@ public abstract class Enemy : MonoBehaviour
             movingPattern = MovingPattern.Chase;
         }
     }
-    private void ChangeIsFrightened()
+    private void BecomeUnfrightened()
     {
         Speed = 25;
         material = assignedMaterial;
         IsFrightened = false;
         HasRoute = false;
     }
-    public void FrightenEnemy()
+    public void BecomeFrightened()
     {
         IsFrightened = true;
         movingPattern = MovingPattern.Frightened;
@@ -379,14 +387,37 @@ public abstract class Enemy : MonoBehaviour
         material = frightenedMaterial;
         targetNode = currentNode;
         targetPosition = targetNode.transform.position;
-        Invoke("ChangeIsFrightened", FrightenedTimer);
+        Invoke("BecomeUnfrightened", FrightenedTimer);
     }
     void OnTriggerEnter(Collider col)
     {
         if (col.tag == "Player")
         {
-            player.GetComponent<PlayerStats>().GetHit();
+            if (!IsFrightened)
+            {
+                player.GetComponent<PlayerStats>().GetHit();
+            }
+            else
+            {
+                GetRekt();
+            }
         }
+    }
+
+    void GetRekt()
+    {
+        var nodes = GameManager.Instance.GraphManagerInstance.Nodes;
+        var retreatNodeIndex = Random.Range(0, nodes.Length);
+        var playerMovement = player.GetComponent<PlayerLinearMovement>();
+        Debug.Log("playerMovement: " + (playerMovement != null).ToString());
+        while ((playerMovement.TargetNode != null && nodes[retreatNodeIndex].NodeId.Equals(playerMovement.TargetNode.NodeId)) ||
+                (playerMovement.CurrentNode != null && nodes[retreatNodeIndex].NodeId.Equals(playerMovement.CurrentNode.NodeId)))
+        {
+            retreatNodeIndex = Random.Range(0, nodes.Length);
+        }
+        SetPosition(nodes[retreatNodeIndex]);
+        CancelInvoke("BecomeUnfrightened");
+        BecomeUnfrightened();
     }
 
     private void Movement_FirstMoveDone(bool val)
