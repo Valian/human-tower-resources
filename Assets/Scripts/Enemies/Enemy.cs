@@ -164,6 +164,7 @@ public abstract class Enemy : MonoBehaviour
             {
                 this.SetPosition(targetNode);
                 IsMoving = false;
+                HasRoute = false;
             }
             else
             {
@@ -364,6 +365,7 @@ public abstract class Enemy : MonoBehaviour
         Speed = 25;
         material = assignedMaterial;
         IsFrightened = false;
+        HasRoute = false;
     }
     public void FrightenEnemy()
     {

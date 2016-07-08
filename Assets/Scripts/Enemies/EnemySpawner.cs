@@ -6,7 +6,7 @@ public class EnemySpawner : MonoBehaviour
     public List<GameObject>     EnemiesPrefabs;
     private List<GameObject>    _spawnedEnemies;
     
-    public void SpawnEnemies(int count)
+    public void SpawnEnemies(int count, int[] enemiesNodesIndexes)
     {
         ClearEnemies();
         _spawnedEnemies = new List<GameObject>();
@@ -14,6 +14,8 @@ public class EnemySpawner : MonoBehaviour
         {
             var enemy = Instantiate(EnemiesPrefabs[i % EnemiesPrefabs.Count]);
             enemy.transform.parent = transform;
+            var enemyScript = enemy.GetComponent<Enemy>();
+            enemyScript.Init(GameManager.Instance.GraphManagerInstance.Nodes[enemiesNodesIndexes[i]]);
             _spawnedEnemies.Add(enemy);
         }
     }
