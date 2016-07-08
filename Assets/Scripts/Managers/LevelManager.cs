@@ -89,6 +89,21 @@ public static class LevelManager
             },
             EnemiesCount = 4
         };
+        LevelDefinition spiral = new LevelDefinition
+        {
+            GraphType = GraphType.Spiral,
+            GraphSettings = new SpiralGraphProperties
+            {
+                Location = seedPosition,
+                RandomizationPercentage = 0f,
+                BaseRadius = 200,
+                FloorsCount = 3,
+                Height = 400,
+                EdgesProbability = 0.2f,
+                FloorsNodesCounts = new [] {10, 5, 1}
+            },
+            EnemiesCount = 4
+        };
 
         _levels = new List<LevelDefinition>
         {
@@ -96,7 +111,8 @@ public static class LevelManager
             tetrahedron,
             cube1x1,
             conic1x3x2,
-            cube2x2
+            cube2x2,
+            spiral
         };
     }
 

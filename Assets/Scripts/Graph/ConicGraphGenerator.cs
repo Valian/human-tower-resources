@@ -11,13 +11,13 @@ public class ConicGraphGenerator : IGraphGenerator
         Vector3[] currentNodesFloor = null;
         ConicGraphProperties conicGraphProperties = graphProperties as ConicGraphProperties;
 
-        float coneTopY = conicGraphProperties.Location.y + conicGraphProperties.Height;
+        float topY = conicGraphProperties.Location.y + conicGraphProperties.Height;
         float floorHeight = conicGraphProperties.Height / (conicGraphProperties.FloorsCount - 1);
 
         for (int floorNo = 0; floorNo < conicGraphProperties.FloorsCount; floorNo++)
         {
             float floorY = conicGraphProperties.Location.y + floorNo * floorHeight;
-            float newConeHeight = coneTopY - floorY;
+            float newConeHeight = topY - floorY;
             float floorRadius = conicGraphProperties.BaseRadius * newConeHeight / conicGraphProperties.Height;
 
             if (floorNo > 0)
@@ -33,11 +33,11 @@ public class ConicGraphGenerator : IGraphGenerator
                 conicGraphProperties.FloorsNodesCounts[floorNo], conicGraphProperties.RandomizationPercentage, partSize);
             nodes.AddRange(currentNodesFloor);
 
-            edgesList.AddRange(GraphGeneratorHelper.GetEdgesOnFloor(currentNodesFloor, nodes));
+            edgesList.AddRange(GraphGeneratorHelper.GetEdgesInCircle(currentNodesFloor, nodes));
 
             if (floorNo > 0)
             {
-                edgesList.AddRange(GraphGeneratorHelper.GetEdgesBetweenTwoFloors(lastNodesFloor, currentNodesFloor, nodes));
+                edgesList.AddRange(GraphGeneratorHelper.GetEdgesBetweenTwoSetsAllToAll(lastNodesFloor, currentNodesFloor, nodes));
             }
         }
 

@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
         // DEBUG
         if (Input.GetKeyDown(KeyCode.K))
         {
+            Debug.Log("Collecting a power dot");
             PowerDotCollected();
         }
         // DEBUG
@@ -79,8 +80,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void EndGame(bool success)
-    {   
-
+    {
         graphManager.DestroyGraph();
         EnemiesSpawner.ClearEnemies();
         DotsCount = 0;
