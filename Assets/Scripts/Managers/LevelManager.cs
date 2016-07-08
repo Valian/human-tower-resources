@@ -35,7 +35,7 @@ public static class LevelManager
                 Size = new Vector3(100, 75, 75)
             },
             EnemiesCount = 2,
-            PowerDotLocations = new[] {new[] {0, 0}}
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition square = new LevelDefinition
         {
@@ -50,7 +50,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] { 4, 0 }
             },
             EnemiesCount = 0,
-            PowerDotLocations = new[] { new[] { 0, 0 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition cube2x2 = new LevelDefinition
         {
@@ -63,7 +63,7 @@ public static class LevelManager
                 Size = new Vector3(200, 150, 150)
             },
             EnemiesCount = 3,
-            PowerDotLocations = new[] { new[] { 0, 0 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition tetrahedron = new LevelDefinition
         {
@@ -78,7 +78,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] {3, 1}
             },
             EnemiesCount = 21,
-            PowerDotLocations = new[] { new[] { 0, 0 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition conic1x3x2 = new LevelDefinition
         {
@@ -93,7 +93,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] {2, 3, 1}
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 0 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
         LevelDefinition spiral = new LevelDefinition
         {
@@ -109,7 +109,7 @@ public static class LevelManager
                 FloorsNodesCounts = new [] {10, 5, 1}
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 0 } }
+            PowerDotLocations = new[] { new[] { 0, 1 } }
         };
 
         _levels = new List<LevelDefinition>
