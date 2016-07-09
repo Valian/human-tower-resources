@@ -123,6 +123,23 @@ public static class LevelManager
             PowerDotLocations = new[] { new[] { 6, 7 }, new[] { 10, 11 }, new[] { 14, 15 } },
             EnemiesRespawnNodeIndexes = new [] {10,13,15, 6}
         };
+        LevelDefinition spiral2 = new LevelDefinition
+        {
+            GraphType = GraphType.Spiral,
+            GraphSettings = new SpiralGraphProperties
+            {
+                Location = seedPosition,
+                RandomizationPercentage = 0f,
+                BaseRadius = 250,
+                FloorsCount = 6,
+                Height = 600,
+                EdgesProbability = 0.2f,
+                FloorsNodesCounts = new[] { 15, 10, 10, 8, 7, 3 }
+            },
+            EnemiesCount = 4,
+            PowerDotLocations = new[] { new[] { 0, 1 } },
+            EnemiesRespawnNodeIndexes = new[] { 10, 13, 15, 6 }
+        };
 
         _levels = new List<LevelDefinition>
         {
@@ -131,7 +148,8 @@ public static class LevelManager
             cube1x1,
             conic1x3x2,
             cube2x2,
-            spiral
+            spiral,
+            spiral2
         };
     }
 

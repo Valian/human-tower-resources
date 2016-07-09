@@ -13,7 +13,7 @@ public abstract class Enemy : MonoBehaviour
     public int ChaseTimer;
 
     [Range(0, 40)]
-    public int FrightenedTimer;
+    public static int FrightenedTimer;
 
     [Range(0, 1000)]
     public int SearchRadius;
