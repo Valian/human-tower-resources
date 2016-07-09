@@ -42,7 +42,7 @@ public static class LevelManager
                 Size = new Vector3(100, 75, 75)
             },
             EnemiesCount = 2,
-            PowerDotLocations = new[] { new[] { 0, 1 } },
+            PowerDotLocations = new[] { new[] { 2, 6 }, new[] { 5, 1 } },
             EnemiesRespawnNodeIndexes = new [] { 3, 4 }
         };
         LevelDefinition square = new LevelDefinition
@@ -58,7 +58,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] { 4, 0 }
             },
             EnemiesCount = 0,
-            PowerDotLocations = new[] { new[] { 0, 1 } }
+            PowerDotLocations = new[] { new[] { 2, 3 } }
         };
         LevelDefinition cube2x2 = new LevelDefinition
         {
@@ -71,7 +71,7 @@ public static class LevelManager
                 Size = new Vector3(200, 150, 150)
             },
             EnemiesCount = 3,
-            PowerDotLocations = new[] { new[] { 0, 1 } },
+            PowerDotLocations = new[] { new[] { 4, 13 }, new[] { 25, 26 }, new[] { 18, 19 } },
             EnemiesRespawnNodeIndexes = new [] { 10, 21, 24 }
         };
         LevelDefinition tetrahedron = new LevelDefinition
@@ -84,7 +84,7 @@ public static class LevelManager
                 BaseRadius = 100,
                 FloorsCount = 2,
                 Height = 200,
-                FloorsNodesCounts = new[] { 3, 1 }
+                FloorsNodesCounts = new[] { 4, 0 }
             },
             EnemiesCount = 1,
             PowerDotLocations = new[] { new[] { 0, 1 } },
@@ -103,7 +103,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] { 2, 3, 1 }
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 1 } },
+            PowerDotLocations = new[] { new[] { 1, 4 }, new[] { 2, 5 } },
             EnemiesRespawnNodeIndexes = new [] { 2, 3, 4, 5 }
         };
         LevelDefinition spiral = new LevelDefinition
@@ -120,7 +120,7 @@ public static class LevelManager
                 FloorsNodesCounts = new[] { 10, 5, 1 }
             },
             EnemiesCount = 4,
-            PowerDotLocations = new[] { new[] { 0, 1 } },
+            PowerDotLocations = new[] { new[] { 6, 7 }, new[] { 10, 11 }, new[] { 14, 15 } },
             EnemiesRespawnNodeIndexes = new [] {10,13,15, 6}
         };
         LevelDefinition spiral2 = new LevelDefinition
