@@ -6,7 +6,7 @@ public class GuiManager : MonoBehaviour {
     public static GuiManager Instance;
     public GameObject MenuPanel;
     public GameObject GameGuiPanel;
-
+    public bool IsMenuOn = true;
     private Vector3 playerMenuPosition;
     void Awake()
     {
@@ -17,6 +17,7 @@ public class GuiManager : MonoBehaviour {
     {
         GameManager.Instance.GameEnded += Instance_GameOver;
         playerMenuPosition = GameManager.Instance.Player.transform.position;
+        GameGuiPanel.SetActive(false);
         ShowMenu();
     }
 
@@ -29,13 +30,15 @@ public class GuiManager : MonoBehaviour {
     {
         GameManager.Instance.Player.transform.position = playerMenuPosition;
         MenuPanel.SetActive(true);
-        GameGuiPanel.SetActive(false);
+        //GameGuiPanel.SetActive(false);
+        IsMenuOn = true;
     }
 
     public void HideMenu()
     {
         MenuPanel.SetActive(false);
-        GameGuiPanel.SetActive(true);
+        //GameGuiPanel.SetActive(true);
+        IsMenuOn = false;
     }
     
 }

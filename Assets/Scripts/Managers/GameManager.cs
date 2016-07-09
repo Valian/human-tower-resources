@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     public event Action         PowerDotCollected = delegate { };
 
     private GraphManager graphManager;
+    private LevelManager.LevelDefinition currentLevelDef;
 
     public static GameManager Instance;
 
@@ -54,15 +55,24 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // DEBUG
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("Collecting a power dot");
             PowerDotCollected();
         }
         if (Input.GetKeyDown(KeyCode.Escape))
-            Application.Quit();
-        // DEBUG
+        {
+            if (!GuiManager.Instance.IsMenuOn)
+            {
+                EndGame(false);
+                GuiManager.Instance.ShowMenu();
+            }
+            else
+            {
+                Application.Quit();
+            }
+
+        }
     }
 
     public void StartGame()
@@ -76,8 +86,9 @@ public class GameManager : MonoBehaviour
     public void StartLevel(int levelNo)
     {
         var levelDef = LevelManager.GetLevelDefinition(levelNo);
-        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings);
-        EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount);
+        currentLevelDef = levelDef;
+        graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings, levelDef.PowerDotLocations);
+        EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount, levelDef.EnemiesRespawnNodeIndexes);
         SpawnPlayer();
         GameRunning = true;
         LevelStarted();
@@ -103,6 +114,7 @@ public class GameManager : MonoBehaviour
         SetDeathEffects(true);
         yield return WaitRealTime(DeathFreezeTime);
         ClearNodesModifications();
+        EnemiesSpawner.SpawnEnemies(currentLevelDef.EnemiesCount, currentLevelDef.EnemiesRespawnNodeIndexes);
         SpawnPlayer();
         SetDeathEffects(false);
     }
@@ -167,8 +179,21 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        var node = graphManager.GetRandomNode();
+        var node = graphManager.Nodes[LevelManager.GetLevelDefinition(CurrentLevel).PlayerRespawnNodeIndex];
         Player.Movement.Spawn(node);
+        Player.transform.LookAt(graphManager.GraphCenter());
+
+        //// For Cardboard
+        //var head = Player.transform.Find("Camera/Head");
+        //head.GetComponent<GvrHead>().trackRotation = false;
+        //head.localRotation = Quaternion.identity;
+        //head.GetComponent<GvrHead>().trackRotation = true;
+
+        //// DEBUG
+        //var debugthing = Instantiate(graphManager.NodeObjectPrefab);
+        //debugthing.GetComponent<MeshRenderer>().material.color = Color.red;
+        //debugthing.transform.position = graphManager.GraphCenter();
+        //// DEBUG
     }
 
     private void OnBallSpawned(ScoreBall ball)

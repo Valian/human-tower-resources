@@ -54,7 +54,22 @@ public class GraphManager : MonoBehaviour
     private readonly SphericGraphGenerator _sphericGraphGenerator = new SphericGraphGenerator();
     private readonly SpiralGraphGenerator _spiralGraphGenerator = new SpiralGraphGenerator();
 
-    public void Generate(GraphType graphType, IGraphProperties properties = null)
+    public void Update()
+    {
+        // DEBUG
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            var c = GraphCenter();
+            Debug.Log(string.Format(
+                "Graph node count: {0}\n, center: [{1}, {2}, {3}]",
+                Nodes.Length,
+                c.x, c.y, c.z
+                ));
+        }
+        // DEBUG
+    }
+
+    public void Generate(GraphType graphType, IGraphProperties properties = null, int[][] powerDotLocations = null)
     {
         int[][] edges = null;
         Vector3[] nodesLocations = null;
@@ -130,7 +145,7 @@ public class GraphManager : MonoBehaviour
         }
 
         InitializeNodes(nodesLocations);
-        InitializeEdges(this.Nodes, edges);
+        InitializeEdges(this.Nodes, edges, powerDotLocations);
     }
 
     public void Generate()
@@ -244,13 +259,15 @@ public class GraphManager : MonoBehaviour
         this.Nodes = nodes;
     }
 
-    private void InitializeEdges(Node[] nodes, int[][] edges)
+    private void InitializeEdges(Node[] nodes, int[][] edges, int[][] powerDotLocations)
     {
         foreach (int[] edge in edges)
         {
             int from = edge[0];
             int to = edge[1];
-            InstantiateEdge(nodes[from], nodes[to]);
+            bool hasPowerDot = powerDotLocations != null &&
+                               powerDotLocations.FirstOrDefault(d => d[0] == from && d[1] == to) != null;
+            InstantiateEdge(nodes[from], nodes[to], hasPowerDot);
         }
     }
 
@@ -262,11 +279,11 @@ public class GraphManager : MonoBehaviour
         return node;
     }
 
-    private Edge InstantiateEdge(Node from, Node to)
+    private Edge InstantiateEdge(Node from, Node to, bool hasPowerDot = false)
     {
         Edge edge = Instantiate(EdgeNodePrefab);
         edge.transform.parent = transform;
-        edge.InitEdge(from, to);
+        edge.InitEdge(from, to, hasPowerDot);
         connections[from.NodeId, to.NodeId] = connections[to.NodeId, from.NodeId] = edge;
         return edge;
     }
@@ -331,5 +348,15 @@ public class GraphManager : MonoBehaviour
         }
         queue.Remove(Vertex);
         return Vertex;
+    }
+
+    public Vector3 GraphCenter()
+    {
+        if(Nodes == null || Nodes.Length == 0)
+        {
+            throw new System.InvalidOperationException(
+                "Graph does not have any nodes to compute the center");
+        }
+        return Nodes.Select(x => x.transform.position).Aggregate((a, b) => a + b) / Nodes.Length;
     }
 }
