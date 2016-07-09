@@ -58,7 +58,6 @@ public static class LevelManager
                 FloorsNodesCounts = new[] { 4, 0 }
             },
             EnemiesCount = 0,
-            PowerDotLocations = new[] { new[] { 2, 3 } }
         };
         LevelDefinition cube2x2 = new LevelDefinition
         {
