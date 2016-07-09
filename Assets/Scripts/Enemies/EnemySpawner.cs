@@ -22,9 +22,12 @@ public class EnemySpawner : MonoBehaviour
     
     public void ClearEnemies()
     {
-        if(_spawnedEnemies != null && _spawnedEnemies.Count > 0)
+        if (_spawnedEnemies != null && _spawnedEnemies.Count > 0)
         {
-            _spawnedEnemies.ForEach(e => Destroy(e.gameObject));
+            _spawnedEnemies.ForEach(e => {
+                e.gameObject.SetActive(false);
+                Destroy(e.gameObject);
+            });
         }
     }
 }

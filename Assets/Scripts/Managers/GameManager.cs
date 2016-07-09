@@ -88,8 +88,8 @@ public class GameManager : MonoBehaviour
         var levelDef = LevelManager.GetLevelDefinition(levelNo);
         currentLevelDef = levelDef;
         graphManager.Generate(levelDef.GraphType, levelDef.GraphSettings, levelDef.PowerDotLocations);
-        EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount, levelDef.EnemiesRespawnNodeIndexes);
         SpawnPlayer();
+        EnemiesSpawner.SpawnEnemies(levelDef.EnemiesCount, levelDef.EnemiesRespawnNodeIndexes);
         GameRunning = true;
         LevelStarted();
     }
