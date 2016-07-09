@@ -39,15 +39,12 @@ public abstract class Enemy : MonoBehaviour
     public Material frightenedMaterial;
 
     protected bool IsMoving;
-    //protected bool IsInitialized;
     protected bool IsFrightened;
     private bool HasRoute;
     protected Node currentNode;
     protected Node targetNode;
     protected Edge movingOnEdge;
-    //private Node previousNode;
 
-    //private float timer;
     protected GameObject player;
     private Vector3 _targetPosition;
     protected Vector3 targetPosition
@@ -62,15 +59,19 @@ public abstract class Enemy : MonoBehaviour
     private bool playerMoved = false;
     private Material assignedMaterial;
     private 
-
-    // Use this for initialization
+        
     void Start()
     {
-        //IsInitialized = false;
         GameManager.Instance.Player.Movement.FirstMoveChanged += Movement_FirstMoveDone;
         InvokeRepeating("ChangeMovingPattern", 5, ChaseTimer);
         GameManager.Instance.PowerDotCollected += BecomeFrightened;
         assignedMaterial = material;
+    }
+
+    void OnDestroy()
+    {
+        GameManager.Instance.PowerDotCollected -= BecomeFrightened;
+        GameManager.Instance.Player.Movement.FirstMoveChanged -= Movement_FirstMoveDone;
     }
 
     private Material material
@@ -98,15 +99,9 @@ public abstract class Enemy : MonoBehaviour
         IsMoving = false;
         HasRoute = false;
     }
+
     public void Init(Node startingNode)
-    //public void Init()
-    {
-        //MOCK - starting conditions (set starting node and position)
-        //List<Node> targets = GameObject.FindObjectsOfType<Node>().ToList();
-        //currentNode = targets[Random.Range(0, targets.Count)];
-        //gameObject.transform.position = currentNode.transform.position;
-        //transform.position = GetGraphCenter();
-        //currentNode = ChoseRandomNode();
+    {        
         currentNode = startingNode;
         transform.position = currentNode.transform.position;
 
@@ -118,23 +113,10 @@ public abstract class Enemy : MonoBehaviour
         ChaseTimer = 10;
         FrightenedTimer = 15;
         Speed = 25;
-        //movingPattern = MovingPattern.Chase;
         player = GameManager.Instance.Player.gameObject;
-
-        //GoToRandomNode();
-        //IsInitialized = true;
+        
     }
-    //private Vector3 GetGraphCenter()
-    //{
-    //    int len = GameManager.Instance.GraphManagerInstance.Nodes.Length;
-    //    Vector3 result = new Vector3();
-    //    foreach (Node n in GameManager.Instance.GraphManagerInstance.Nodes)
-    //    {
-    //        result += n.transform.position;
-    //    }
-    //    return result / len;
-    //    //return new Vector3(result.x / n, result.y / n, result.z / n);
-    //}
+    
     private Node ChoseRandomNode()
     {
         Node[] nodes = GameManager.Instance.GraphManagerInstance.Nodes;
@@ -266,7 +248,6 @@ public abstract class Enemy : MonoBehaviour
             {
                 if(GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
                 {
-
                     targetNode = colObject;
                     targetPosition = colObject.transform.position;
                     if (targetNode == currentNode || targetNode == null)
@@ -283,33 +264,8 @@ public abstract class Enemy : MonoBehaviour
     {
         ChaseWithDjikstra();
         IsMoving = true;
-        return;
-        if (GameManager.Instance.GraphManagerInstance.IsConnected(GameManager.Instance.Player.Movement.CurrentNode.NodeId, currentNode.NodeId))
-        {
-            targetPosition = GameManager.Instance.Player.transform.position;
-            targetNode = GameManager.Instance.Player.Movement.CurrentNode;
-            IsMoving = true;
-            return;
-        }
-        Collider[] hitColliders = FindColiders(vec, SearchRadius);
-        foreach (Collider col in hitColliders)
-        {
-            Node colObject = col.gameObject.GetComponent<Node>();
-            if (colObject != null)
-            {
-                if (GameManager.Instance.GraphManagerInstance.IsConnected(currentNode.NodeId, colObject.NodeId))
-                {
-                    targetNode = colObject;
-                    targetPosition = colObject.transform.position;
-                    if (targetNode == currentNode || targetNode == null)
-                    {
-                        ChaseWithDjikstra();
-                    }
-                    IsMoving = true;
-                }
-            }
-        }
     }
+
     protected void ChaseWithDjikstra()
     {
         GraphManager graphManager = GameManager.Instance.GraphManagerInstance;
